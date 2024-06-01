@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db-products:
+    image: postgres:16.3
+    container_name: db-products
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: products
+    restart: always
+    ports:
+      - "33001:5432"
+
+  db-orders:
+    image: postgres:16.3
+    container_name: db-orders
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    restart: always
+    ports:
+      - "33002:5432"
+    volumes:
+    - ./sql/init-orders.sql:/docker-entrypoint-initdb.d/init-orders.sql
+volumes:
+  postgres_data:
+
+
