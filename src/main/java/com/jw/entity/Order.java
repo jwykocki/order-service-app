@@ -1,10 +1,8 @@
+/* (C)2024 */
 package com.jw.entity;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "order_table")
@@ -12,11 +10,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class OrderDao{
+@Builder
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String name;
 
+    private String name;
 }

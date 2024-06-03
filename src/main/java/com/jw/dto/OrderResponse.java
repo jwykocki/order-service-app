@@ -1,4 +1,7 @@
+/* (C)2024 */
 package com.jw.dto;
 
-public record OrderResponse(int id, String name) {
-}
+import lombok.Builder;
+
+@Builder
+public record OrderResponse(int id, String name) {}

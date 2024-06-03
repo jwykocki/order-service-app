@@ -1,33 +1,30 @@
+/* (C)2024 */
 package com.jw.service;
 
+import static com.jw.dto.OrderMapper.mapOrderRequestToOrder;
+
+import com.jw.dto.OrderMapper;
 import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
-import com.jw.entity.OrderDao;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @ApplicationScoped
-@Transactional
 public class OrderService {
 
     private final OrderRepository orderRepository;
+
+    @Transactional
     public void saveOrder(OrderRequest orderRequest) {
-        OrderDao orderToSave = new OrderDao();
-        orderToSave.setName(orderRequest.name());
-        orderRepository.persist(orderToSave);
+        orderRepository.persist(mapOrderRequestToOrder(orderRequest));
     }
 
-    public List<OrderResponse> getAllorders() {
-        List<OrderDao> ordersDao = orderRepository.listAll();
-        return ordersDao.stream().map(orderDao -> new OrderResponse(orderDao.getId(), orderDao.getName())).toList();
+    public List<OrderResponse> getAllOrders() {
+        return orderRepository.listAll().stream()
+                .map(OrderMapper::mapOrdertoOrderResponse)
+                .toList();
     }
 }

@@ -1,15 +1,14 @@
+/* (C)2024 */
 package com.jw.resources;
 
 import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
-import com.jw.entity.OrderDao;
 import com.jw.service.OrderService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import lombok.RequiredArgsConstructor;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 
 @Path("/order")
 @RequiredArgsConstructor
@@ -22,7 +21,7 @@ public class OrderResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public List<OrderResponse> getAllOrders() {
-        return orderService.getAllorders();
+        return orderService.getAllOrders();
     }
 
     @POST
