@@ -1,4 +1,3 @@
-/* (C)2024 */
 package com.jw.dto;
 
 import lombok.Builder;
