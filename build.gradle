@@ -28,7 +28,8 @@ dependencies {
 	testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.1.0'
 	testImplementation group: 'io.quarkus', name: 'quarkus-junit5-mockito', version: '3.11.0'
 	testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.26.0'
-
+	testImplementation "org.testcontainers:testcontainers:1.19.8"
+	testImplementation "org.testcontainers:postgresql:1.19.8"
 
 }
 

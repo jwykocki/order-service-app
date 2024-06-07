@@ -1,6 +1,7 @@
 package com.jw.resources;
 
 import static com.jw.OrderTestFixtures.*;
+import static com.jw.resources.RequestCaller.callEndpointAndAssertStatusCode;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -10,9 +11,7 @@ import com.jw.entity.Order;
 import com.jw.error.ErrorResponse;
 import com.jw.service.*;
 import io.quarkus.test.InjectMock;
-import io.quarkus.test.Mock;
 import io.quarkus.test.junit.QuarkusTest;
-import jakarta.inject.Inject;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -24,21 +23,11 @@ import org.mockito.MockitoAnnotations;
 @QuarkusTest
 class OrderResourceTest {
 
-    @Inject
-    OrderMapper orderMapper;
-
-    @InjectMock
-    OrderService orderService;
+    @InjectMock OrderRepository orderRepository;
 
     @Test
     void shouldReturn204NoContent() {
-
-        given().when()
-                .contentType("application/json")
-                .body(VALID_ORDER_REQUEST)
-                .post("/order")
-                .then()
-                .statusCode(204);
+        callEndpointAndAssertStatusCode("/order", VALID_ORDER_REQUEST, 204);
     }
 
     @ParameterizedTest
@@ -67,8 +56,11 @@ class OrderResourceTest {
         OrderResponse orderResponse1 = new OrderResponse(1, "test1");
         OrderResponse orderResponse2 = new OrderResponse(2, "test2");
 
+        Order order1 = new Order(1, "test1");
+        Order order2 = new Order(2, "test2");
+
         MockitoAnnotations.initMocks(this);
-        Mockito.when(orderService.getAllOrders()).thenReturn(List.of(orderResponse1, orderResponse2));
+        Mockito.when(orderRepository.listAll()).thenReturn(List.of(order1, order2));
 
         OrdersResponse receivedResponse =
                 given().when()
@@ -86,20 +78,11 @@ class OrderResourceTest {
 
     @RequiredArgsConstructor
     enum InvalidRequest {
-        WITHOUT_FIELD(
-                BODY_WITHOUT_REQUIRED_FIELD,
-                List.of(
-                        "order name must not be empty",
-                        "order name must not be blank",
-                        "order name must not be null")),
-        WITH_EMPTY_FIELD(
-                BODY_WITH_EMPTY_FIELD,
-                List.of("order name must not be empty", "order name must not be blank")),
-        WITH_BLANK_FIELD(BODY_WITH_BLANK_FIELD, List.of("order name must not be blank"));
+        WITHOUT_FIELD(BODY_WITHOUT_REQUIRED_FIELD, List.of("order name must be populated")),
+        WITH_EMPTY_FIELD(BODY_WITH_EMPTY_FIELD, List.of("order name must be populated")),
+        WITH_BLANK_FIELD(BODY_WITH_BLANK_FIELD, List.of("order name must be populated"));
 
         private final String body;
         private final List<String> expectedMessages;
     }
-
-
 }
