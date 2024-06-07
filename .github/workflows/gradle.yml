@@ -34,7 +34,7 @@ jobs:
       uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
     - name: Run Test with Spotless Check
-      run: ./gradlew spotlessCheck clean check -i
+      run: git fetch origin master  && ./gradlew spotlessCheck clean check -i
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build
