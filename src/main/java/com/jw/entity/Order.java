@@ -19,7 +19,6 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @NotNull(message = "order name must not be null") @NotEmpty(message = "order name must not be empty")
-    @NotBlank(message = "order name must not be blank")
+    @NotBlank(message = "order name must be populated")
     private String name;
 }

@@ -9,6 +9,8 @@ import com.jw.dto.OrdersResponse;
 import com.jw.entity.Order;
 import com.jw.error.ErrorResponse;
 import com.jw.service.*;
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.Mock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import java.util.List;
@@ -16,12 +18,17 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 @QuarkusTest
 class OrderResourceTest {
 
-    @Inject OrderRepositoryTestImpl orderRepositoryTest;
-    @Inject OrderMapper orderMapper;
+    @Inject
+    OrderMapper orderMapper;
+
+    @InjectMock
+    OrderService orderService;
 
     @Test
     void shouldReturn204NoContent() {
@@ -49,6 +56,7 @@ class OrderResourceTest {
                         .response()
                         .body()
                         .as(ErrorResponse.class);
+
         assertThat(errorResponse.getMessage()).isEqualTo("Request body is not valid");
         assertThat(errorResponse.getErrors()).hasSameElementsAs(invalidRequest.expectedMessages);
     }
@@ -56,12 +64,11 @@ class OrderResourceTest {
     @Test
     void shouldReturnListOfOrders() {
 
-        Order order1 = new Order(1, "test1");
-        Order order2 = new Order(2, "test2");
-        orderRepositoryTest.persist(order1);
-        orderRepositoryTest.persist(order2);
-        OrderResponse orderResponse1 = orderMapper.mapOrderToOrderResponse(order1);
-        OrderResponse orderResponse2 = orderMapper.mapOrderToOrderResponse(order2);
+        OrderResponse orderResponse1 = new OrderResponse(1, "test1");
+        OrderResponse orderResponse2 = new OrderResponse(2, "test2");
+
+        MockitoAnnotations.initMocks(this);
+        Mockito.when(orderService.getAllOrders()).thenReturn(List.of(orderResponse1, orderResponse2));
 
         OrdersResponse receivedResponse =
                 given().when()
@@ -93,4 +100,6 @@ class OrderResourceTest {
         private final String body;
         private final List<String> expectedMessages;
     }
+
+
 }

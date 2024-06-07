@@ -13,12 +13,12 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final OrderValidator orderValidator;
+    private final ValidatorService orderValidator;
 
     @Transactional
     public void saveOrder(OrderRequest orderRequest) {
         com.jw.entity.Order order = orderMapper.mapOrderRequestToOrder(orderRequest);
-        orderValidator.validateOrder(order);
+        orderValidator.validate(order);
         orderRepository.persist(order);
     }
 

@@ -1,25 +1,27 @@
 package com.jw.service;
 
-import com.jw.entity.Order;
 import com.jw.error.InvalidOrderRequestException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Valid;
+import jakarta.validation.Validator;
+import lombok.RequiredArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 @ApplicationScoped
-public class OrderValidator {
+public class ValidatorService {
 
-    public void validateOrder(Order order) {
+    private final Validator validator;
+
+    public void validate(Object object) {
         try {
-            checkIfValid(order);
+            validator.validate(object);
         } catch (ConstraintViolationException e) {
             List<String> violations = new ArrayList<String>();
             e.getConstraintViolations().forEach(v -> violations.add(v.getMessage()));
             throw new InvalidOrderRequestException("Request body is not valid", violations);
         }
     }
-
-    public void checkIfValid(@Valid Order order) {}
 }
