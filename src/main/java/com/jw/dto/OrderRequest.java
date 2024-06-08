@@ -1,3 +1,3 @@
 package com.jw.dto;
 
-public record OrderRequest(String name) {}
+public record OrderRequest(Long id, String name) {}

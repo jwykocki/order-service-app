@@ -13,4 +13,11 @@ public class OrderMapper {
     public com.jw.entity.Order mapOrderRequestToOrder(OrderRequest orderRequest) {
         return com.jw.entity.Order.builder().name(orderRequest.name()).build();
     }
+
+    public com.jw.entity.Order mapUpdateOrderRequestToOrder(OrderRequest orderRequest) {
+        return com.jw.entity.Order.builder()
+                .id(orderRequest.id())
+                .name(orderRequest.name())
+                .build();
+    }
 }

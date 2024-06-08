@@ -26,6 +26,7 @@ public class GlobalExceptionHandler implements ExceptionMapper<Throwable> {
     }
 
     private Response handleGenericException(Throwable exception) {
+        exception.printStackTrace();
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse(exception.getMessage(), List.of(exception.getMessage())))
                 .type(MediaType.APPLICATION_JSON)
