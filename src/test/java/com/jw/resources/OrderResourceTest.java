@@ -53,11 +53,11 @@ class OrderResourceTest {
     @Test
     void shouldReturnListOfOrders() {
 
-        OrderResponse orderResponse1 = new OrderResponse(1, "test1");
-        OrderResponse orderResponse2 = new OrderResponse(2, "test2");
+        OrderResponse orderResponse1 = new OrderResponse(1L, "test1");
+        OrderResponse orderResponse2 = new OrderResponse(2L, "test2");
 
-        Order order1 = new Order(1, "test1");
-        Order order2 = new Order(2, "test2");
+        Order order1 = new Order(1L, "test1");
+        Order order2 = new Order(2L, "test2");
 
         MockitoAnnotations.initMocks(this);
         Mockito.when(orderRepository.listAll()).thenReturn(List.of(order1, order2));
