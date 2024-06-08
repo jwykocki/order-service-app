@@ -18,35 +18,29 @@ public class OrderService {
 
     @Transactional
     public void saveOrder(OrderRequest orderRequest) {
-        com.jw.entity.Order order = orderMapper.mapOrderRequestToOrder(orderRequest);
+        com.jw.entity.Order order = orderMapper.toOrder(orderRequest);
         orderValidator.validate(order);
         orderRepository.persist(order);
     }
 
     public List<OrderResponse> getAllOrders() {
-        return orderRepository.listAll().stream()
-                .map(orderMapper::mapOrderToOrderResponse)
-                .toList();
+        return orderRepository.listAll().stream().map(orderMapper::toOrderResponse).toList();
     }
 
     @Transactional
     public void deleteOrder(String id) {
-        System.out.println("ops deleting order " + id);
         Long orderId = Long.valueOf(id);
-        System.out.println("deleting order id " + orderId);
         orderRepository.deleteById(orderId);
     }
 
     public OrderResponse getOrderById(String id) {
         Long orderId = Long.valueOf(id);
         Order order = orderRepository.findById(orderId);
-        return orderMapper.mapOrderToOrderResponse(order);
+        return orderMapper.toOrderResponse(order);
     }
 
     @Transactional
     public void updateOrder(OrderRequest orderRequest) {
-        orderRepository
-                .getEntityManager()
-                .merge(orderMapper.mapUpdateOrderRequestToOrder(orderRequest));
+        orderRepository.getEntityManager().merge(orderMapper.toOrder(orderRequest));
     }
 }

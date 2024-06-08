@@ -41,7 +41,6 @@ public class OrderResource {
     @DELETE
     @Path("/{id}")
     public void deleteOrder(@PathParam("id") String id) {
-        System.out.println("Delete Order");
         orderService.deleteOrder(id);
     }
 
