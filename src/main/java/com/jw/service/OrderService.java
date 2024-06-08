@@ -3,6 +3,7 @@ package com.jw.service;
 import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
 import com.jw.entity.Order;
+import com.jw.error.OrderNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -28,19 +29,26 @@ public class OrderService {
     }
 
     @Transactional
-    public void deleteOrder(String id) {
-        Long orderId = Long.valueOf(id);
-        orderRepository.deleteById(orderId);
+    public void deleteOrder(Long id) {
+        checkIfOrderExistsOrElseThrowException(id);
+        orderRepository.deleteById(id);
     }
 
-    public OrderResponse getOrderById(String id) {
-        Long orderId = Long.valueOf(id);
-        Order order = orderRepository.findById(orderId);
+    public OrderResponse getOrderById(Long id) {
+        checkIfOrderExistsOrElseThrowException(id);
+        Order order = orderRepository.findById(id);
         return orderMapper.toOrderResponse(order);
     }
 
     @Transactional
     public void updateOrder(OrderRequest orderRequest) {
+        checkIfOrderExistsOrElseThrowException(orderRequest.id());
         orderRepository.getEntityManager().merge(orderMapper.toOrder(orderRequest));
+    }
+
+    private void checkIfOrderExistsOrElseThrowException(Long id) {
+        orderRepository
+                .findByIdOptional(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
     }
 }

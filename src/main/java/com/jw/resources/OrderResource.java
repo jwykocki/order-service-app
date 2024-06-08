@@ -27,7 +27,7 @@ public class OrderResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public OrderResponse getOrderByOderId(@PathParam("id") String id) {
+    public OrderResponse getOrderByOderId(@PathParam("id") Long id) {
         return orderService.getOrderById(id);
     }
 
@@ -40,7 +40,7 @@ public class OrderResource {
 
     @DELETE
     @Path("/{id}")
-    public void deleteOrder(@PathParam("id") String id) {
+    public void deleteOrder(@PathParam("id") Long id) {
         orderService.deleteOrder(id);
     }
 
