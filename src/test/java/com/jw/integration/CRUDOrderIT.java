@@ -36,11 +36,6 @@ public class CRUDOrderIT {
         orderRepository.persist(order);
     }
 
-    @Transactional
-    public void flushDb() {
-        orderRepository.flush();
-    }
-
     @BeforeEach
     @AfterEach
     public void cleanUp() {
@@ -116,24 +111,6 @@ public class CRUDOrderIT {
     }
 
     @Test
-    public void shouldDeleteOrder() {
-
-        // given
-        Order order = new Order();
-        order.setName(TEST_ORDER_REQUEST_NAME);
-        saveOrder(order);
-        List<Order> orders = orderRepository.listAll();
-        assertThat(orders.size()).isEqualTo(1);
-        Long orderId = orders.get(0).getId();
-
-        // when
-        callEndpointAndAssertStatusCodeAndReturn(HttpMethod.DELETE, "/order/" + orderId, "", 204);
-
-        // then
-        assertThat(orderRepository.count()).isEqualTo(0);
-    }
-
-    @Test
     public void shouldUpdateOrder() {
 
         // given
@@ -154,5 +131,23 @@ public class CRUDOrderIT {
         assertThat(orders.size()).isEqualTo(1);
         assertThat(orders.get(0).getId()).isEqualTo(orderId);
         assertThat(orders.get(0).getName()).isEqualTo(TEST_ORDER_REQUEST_NAME_2);
+    }
+
+    @Test
+    public void shouldDeleteOrder() {
+
+        // given
+        Order order = new Order();
+        order.setName(TEST_ORDER_REQUEST_NAME);
+        saveOrder(order);
+        List<Order> orders = orderRepository.listAll();
+        assertThat(orders.size()).isEqualTo(1);
+        Long orderId = orders.get(0).getId();
+
+        // when
+        callEndpointAndAssertStatusCodeAndReturn(HttpMethod.DELETE, "/order/" + orderId, "", 204);
+
+        // then
+        assertThat(orderRepository.count()).isEqualTo(0);
     }
 }

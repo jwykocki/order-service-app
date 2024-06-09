@@ -26,6 +26,8 @@ class OrderResourceTest {
 
     @Test
     void shouldReturn204NoContent() {
+
+        // given && when && then
         callEndpointAndAssertStatusCodeAndReturn(
                 HttpMethod.POST, "/order", VALID_ORDER_REQUEST, 204);
     }
@@ -35,11 +37,13 @@ class OrderResourceTest {
             strings = {BODY_WITHOUT_REQUIRED_FIELD, BODY_WITH_EMPTY_FIELD, BODY_WITH_BLANK_FIELD})
     void shouldReturn400BadRequestAndTheProperMessages(String invalidRequestBody) {
 
+        // given && when
         ErrorResponse errorResponse =
                 RequestCaller.callEndpointAndAssertStatusCodeAndReturn(
                                 HttpMethod.POST, "/order", invalidRequestBody, 400)
                         .as(ErrorResponse.class);
 
+        // then
         assertThat(errorResponse.getMessage()).isEqualTo("Request body is not valid");
         assertThat(errorResponse.getErrors())
                 .hasSameElementsAs(List.of("order name must be populated"));
