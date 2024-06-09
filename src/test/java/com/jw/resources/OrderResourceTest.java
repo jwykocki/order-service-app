@@ -1,8 +1,7 @@
 package com.jw.resources;
 
 import static com.jw.OrderTestFixtures.*;
-import static com.jw.resources.RequestCaller.callEndpointAndAssertStatusCode;
-import static io.restassured.RestAssured.given;
+import static com.jw.resources.RequestCaller.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jw.dto.OrderResponse;
@@ -12,11 +11,11 @@ import com.jw.error.ErrorResponse;
 import com.jw.service.*;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.ws.rs.HttpMethod;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
@@ -27,27 +26,27 @@ class OrderResourceTest {
 
     @Test
     void shouldReturn204NoContent() {
-        callEndpointAndAssertStatusCode("/order", VALID_ORDER_REQUEST, 204);
+
+        // given && when && then
+        callEndpointAndAssertStatusCodeAndReturn(
+                HttpMethod.POST, "/order", VALID_ORDER_REQUEST, 204);
     }
 
     @ParameterizedTest
-    @EnumSource(InvalidRequest.class)
-    void shouldReturn400BadRequestAndTheProperMessages(InvalidRequest invalidRequest) {
+    @ValueSource(
+            strings = {BODY_WITHOUT_REQUIRED_FIELD, BODY_WITH_EMPTY_FIELD, BODY_WITH_BLANK_FIELD})
+    void shouldReturn400BadRequestAndTheProperMessages(String invalidRequestBody) {
 
+        // given && when
         ErrorResponse errorResponse =
-                given().when()
-                        .contentType("application/json")
-                        .body(invalidRequest.body)
-                        .post("/order")
-                        .then()
-                        .statusCode(400)
-                        .extract()
-                        .response()
-                        .body()
+                RequestCaller.callEndpointAndAssertStatusCodeAndReturn(
+                                HttpMethod.POST, "/order", invalidRequestBody, 400)
                         .as(ErrorResponse.class);
 
+        // then
         assertThat(errorResponse.getMessage()).isEqualTo("Request body is not valid");
-        assertThat(errorResponse.getErrors()).hasSameElementsAs(invalidRequest.expectedMessages);
+        assertThat(errorResponse.getErrors())
+                .hasSameElementsAs(List.of("order name must be populated"));
     }
 
     @Test
@@ -63,26 +62,10 @@ class OrderResourceTest {
         Mockito.when(orderRepository.listAll()).thenReturn(List.of(order1, order2));
 
         OrdersResponse receivedResponse =
-                given().when()
-                        .contentType("application/json")
-                        .get("/order")
-                        .then()
-                        .statusCode(200)
-                        .extract()
-                        .body()
+                callEndpointAndAssertStatusCodeAndReturn(HttpMethod.GET, "/order", "", 200)
                         .as(OrdersResponse.class);
 
         assertThat(receivedResponse.getOrders())
                 .containsExactlyInAnyOrder(orderResponse1, orderResponse2);
-    }
-
-    @RequiredArgsConstructor
-    enum InvalidRequest {
-        WITHOUT_FIELD(BODY_WITHOUT_REQUIRED_FIELD, List.of("order name must be populated")),
-        WITH_EMPTY_FIELD(BODY_WITH_EMPTY_FIELD, List.of("order name must be populated")),
-        WITH_BLANK_FIELD(BODY_WITH_BLANK_FIELD, List.of("order name must be populated"));
-
-        private final String body;
-        private final List<String> expectedMessages;
     }
 }

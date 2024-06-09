@@ -44,4 +44,14 @@ public class OrderTestFixtures {
                 "name": "        "
             }
             """;
+
+    public static String generateOrderUpdateRequest(Long id) {
+        return """
+            {
+                "id": %s,
+                "name": "testOrderName2"
+            }
+            """
+                .formatted(id);
+    }
 }

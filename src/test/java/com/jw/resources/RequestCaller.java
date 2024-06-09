@@ -2,14 +2,20 @@ package com.jw.resources;
 
 import static io.restassured.RestAssured.given;
 
+import io.restassured.response.ResponseBody;
+
 public class RequestCaller {
 
-    public static void callEndpointAndAssertStatusCode(String path, String body, int statusCode) {
-        given().when()
+    public static ResponseBody callEndpointAndAssertStatusCodeAndReturn(
+            String method, String path, String body, int statusCode) {
+        return given().when()
                 .contentType("application/json")
                 .body(body)
-                .post(path)
+                .request(method, path)
                 .then()
-                .statusCode(statusCode);
+                .statusCode(statusCode)
+                .extract()
+                .response()
+                .body();
     }
 }
