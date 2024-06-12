@@ -58,7 +58,6 @@ class OrderResourceTest {
         Order order1 = new Order(1L, "test1");
         Order order2 = new Order(2L, "test2");
 
-        MockitoAnnotations.initMocks(this);
         Mockito.when(orderRepository.listAll()).thenReturn(List.of(order1, order2));
 
         OrdersResponse receivedResponse =

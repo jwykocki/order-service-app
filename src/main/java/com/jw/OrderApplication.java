@@ -2,12 +2,14 @@ package com.jw;
 
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.annotations.QuarkusMain;
+import io.quarkus.logging.Log;
+
 
 @QuarkusMain
 public class OrderApplication {
 
     public static void main(String... args) {
-        System.out.println("Running main method");
+        Log.info("Starting Quarkus.Main");
         Quarkus.run(args);
     }
 }
