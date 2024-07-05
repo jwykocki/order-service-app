@@ -3,8 +3,10 @@ package com.jw.resources;
 import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
 import com.jw.dto.OrdersResponse;
+import com.jw.service.OrderMapper;
 import com.jw.service.OrderService;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderResource {
 
     private final OrderService orderService;
+    private final OrderMapper orderMapper;
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
@@ -34,8 +37,8 @@ public class OrderResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void saveOrder(OrderRequest orderRequest) {
-        orderService.saveOrder(orderRequest);
+    public OrderResponse saveOrder(@Valid OrderRequest orderRequest) {
+        return orderService.processOrder(orderRequest);
     }
 
     @DELETE
@@ -45,9 +48,10 @@ public class OrderResource {
     }
 
     @PUT
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void updateOrder(OrderRequest orderRequest) {
-        orderService.updateOrder(orderRequest);
+    public OrderResponse updateOrder(@PathParam("id") Long orderId, OrderRequest orderRequest) {
+        return orderService.processUpdateOrder(orderId, orderRequest);
     }
 }

@@ -4,7 +4,17 @@ public class OrderTestFixtures {
     public static final String VALID_ORDER_REQUEST =
             """
             {
-                "name": "testOrderName"
+                "customerId": 3,
+                "productOrders": [
+                    {
+                        "productId": 6,
+                        "quantity": 2
+                    },
+                    {
+                        "productId": 7,
+                        "quantity": 4
+                    }
+                ]
             }
             """;
 
@@ -15,8 +25,8 @@ public class OrderTestFixtures {
             }
             """;
 
-    public static final String TEST_ORDER_REQUEST_NAME = "testOrderName";
-    public static final String TEST_ORDER_REQUEST_NAME_2 = "testOrderName2";
+    public static final Long TEST_ORDER_REQUEST_CUSTOMER_ID = 123L;
+    public static final Long TEST_ORDER_REQUEST_CUSTOMER_ID_2 = 456L;
 
     public static final String INVALID_JSON_BODY =
             """

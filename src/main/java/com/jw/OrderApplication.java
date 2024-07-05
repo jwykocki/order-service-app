@@ -1,9 +1,8 @@
 package com.jw;
 
+import io.quarkus.logging.Log;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.annotations.QuarkusMain;
-import io.quarkus.logging.Log;
-
 
 @QuarkusMain
 public class OrderApplication {

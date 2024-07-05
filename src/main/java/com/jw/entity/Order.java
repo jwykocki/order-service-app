@@ -1,8 +1,9 @@
 package com.jw.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "order_table")
@@ -18,4 +19,10 @@ public class Order {
     private Long orderId;
 
     private Long customerId;
+
+    private String status;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderid")
+    private List<OrderProduct> orderProducts;
 }

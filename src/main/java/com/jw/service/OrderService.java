@@ -8,9 +8,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @ApplicationScoped
+@Slf4j
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -18,9 +20,16 @@ public class OrderService {
     private final ValidatorService orderValidator;
 
     @Transactional
-    public void saveOrder(OrderRequest orderRequest) {
-        Order order = orderMapper.toOrder(orderRequest);
+    public Order saveOrder(Order order) {
         orderRepository.persist(order);
+        return order;
+    }
+
+    public OrderResponse processOrder(OrderRequest orderRequest) {
+        log.info("Processing order {}", orderRequest);
+        Order order = orderMapper.toOrder(orderRequest);
+        saveOrder(order);
+        return orderMapper.toOrderResponse(order);
     }
 
     public List<OrderResponse> getAllOrders() {
@@ -39,10 +48,20 @@ public class OrderService {
         return orderMapper.toOrderResponse(order);
     }
 
+    public OrderResponse processUpdateOrder(Long orderId, OrderRequest orderRequest) {
+        checkIfOrderExistsOrElseThrowException(orderId);
+        Order order = orderMapper.toOrder(orderRequest);
+        order.setOrderId(orderId);
+        String status = orderRepository.findById(orderId).getStatus();
+        order.setStatus(status);
+        updateOrder(order);
+        return orderMapper.toOrderResponse(order);
+    }
+
     @Transactional
-    public void updateOrder(OrderRequest orderRequest) {
-        checkIfOrderExistsOrElseThrowException(orderRequest.customerId());
-        orderRepository.getEntityManager().merge(orderMapper.toOrder(orderRequest));
+    public Order updateOrder(Order order) {
+        orderRepository.getEntityManager().merge(order);
+        return order;
     }
 
     private void checkIfOrderExistsOrElseThrowException(Long id) {

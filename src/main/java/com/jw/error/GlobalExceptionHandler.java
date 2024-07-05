@@ -7,18 +7,7 @@ import jakarta.ws.rs.ext.Provider;
 import java.util.Collections;
 
 @Provider
-public class GlobalExceptionHandler implements ExceptionMapper<Throwable> {
-
-    @Override
-    public Response toResponse(Throwable exception) {
-        if (exception instanceof InvalidOrderRequestException) {
-            return handleInvalidOrderRequestException((InvalidOrderRequestException) exception);
-        } else if (exception instanceof OrderNotFoundException) {
-            return handleOrderNotFoundException((OrderNotFoundException) exception);
-        } else {
-            return handleGenericException(exception);
-        }
-    }
+public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
 
     private Response handleInvalidOrderRequestException(InvalidOrderRequestException exception) {
         return Response.status(Response.Status.BAD_REQUEST)
@@ -40,5 +29,16 @@ public class GlobalExceptionHandler implements ExceptionMapper<Throwable> {
                 .entity(new ErrorResponse("An error occurred", Collections.emptyList()))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
+    }
+
+    @Override
+    public Response toResponse(Exception exception) {
+        if (exception instanceof InvalidOrderRequestException) {
+            return handleInvalidOrderRequestException((InvalidOrderRequestException) exception);
+        } else if (exception instanceof OrderNotFoundException) {
+            return handleOrderNotFoundException((OrderNotFoundException) exception);
+        } else {
+            return handleGenericException(exception);
+        }
     }
 }

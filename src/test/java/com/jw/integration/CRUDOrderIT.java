@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.HttpMethod;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,16 +51,17 @@ public class CRUDOrderIT {
 
         // when
         callEndpointAndAssertStatusCodeAndReturn(
-                HttpMethod.POST, "/order", VALID_ORDER_REQUEST, 204);
+                HttpMethod.POST, "/order", VALID_ORDER_REQUEST, HttpStatus.SC_NO_CONTENT);
         callEndpointAndAssertStatusCodeAndReturn(
-                HttpMethod.POST, "/order", VALID_ORDER_REQUEST_2, 204);
+                HttpMethod.POST, "/order", VALID_ORDER_REQUEST_2, HttpStatus.SC_NO_CONTENT);
 
         // then
         List<Order> orders = orderRepository.listAll();
         assertThat(orders.size()).isEqualTo(2);
-        List<String> orderNames = orders.stream().map(Order::getName).toList();
-        assertThat(orderNames)
-                .containsExactlyInAnyOrder(TEST_ORDER_REQUEST_NAME, TEST_ORDER_REQUEST_NAME_2);
+        List<Long> orderCustomerIds = orders.stream().map(Order::getCustomerId).toList();
+        assertThat(orderCustomerIds)
+                .containsExactlyInAnyOrder(
+                        TEST_ORDER_REQUEST_CUSTOMER_ID, TEST_ORDER_REQUEST_CUSTOMER_ID_2);
     }
 
     @Test
@@ -69,23 +71,25 @@ public class CRUDOrderIT {
         assertThat(orderRepository.listAll().size()).isEqualTo(0);
         Order order = new Order();
         Order order2 = new Order();
-        order.setName(TEST_ORDER_REQUEST_NAME);
-        order2.setName(TEST_ORDER_REQUEST_NAME_2);
+        order.setCustomerId(TEST_ORDER_REQUEST_CUSTOMER_ID);
+        order2.setCustomerId(TEST_ORDER_REQUEST_CUSTOMER_ID_2);
         saveOrder(order);
         saveOrder(order2);
         assertThat(orderRepository.listAll().size()).isEqualTo(2);
 
         // when
         OrdersResponse ordersResponse =
-                callEndpointAndAssertStatusCodeAndReturn(HttpMethod.GET, "/order", "", 200)
+                callEndpointAndAssertStatusCodeAndReturn(
+                                HttpMethod.GET, "/order", "", HttpStatus.SC_OK)
                         .as(OrdersResponse.class);
 
         // then
         List<OrderResponse> orders = ordersResponse.getOrders();
         assertThat(orders.size()).isEqualTo(2);
-        List<String> orderNames = orders.stream().map(OrderResponse::name).toList();
-        assertThat(orderNames)
-                .containsExactlyInAnyOrder(TEST_ORDER_REQUEST_NAME, TEST_ORDER_REQUEST_NAME_2);
+        List<Long> orderCustomerIds = orders.stream().map(OrderResponse::customerId).toList();
+        assertThat(orderCustomerIds)
+                .containsExactlyInAnyOrder(
+                        TEST_ORDER_REQUEST_CUSTOMER_ID, TEST_ORDER_REQUEST_CUSTOMER_ID_2);
     }
 
     @Test
@@ -93,21 +97,21 @@ public class CRUDOrderIT {
 
         // given
         Order order = new Order();
-        order.setName(TEST_ORDER_REQUEST_NAME);
+        order.setCustomerId(TEST_ORDER_REQUEST_CUSTOMER_ID);
         saveOrder(order);
         List<Order> orders = orderRepository.listAll();
         assertThat(orders.size()).isEqualTo(1);
-        Long orderId = orders.get(0).getId();
+        Long orderId = orders.get(0).getOrderId();
 
         // when
         OrderResponse orderResponse =
                 callEndpointAndAssertStatusCodeAndReturn(
-                                HttpMethod.GET, "/order/" + orderId, "", 200)
+                                HttpMethod.GET, "/order/" + orderId, "", HttpStatus.SC_OK)
                         .as(OrderResponse.class);
 
         // then
-        assertThat(orderResponse.id()).isEqualTo(orderId);
-        assertThat(orderResponse.name()).isEqualTo(TEST_ORDER_REQUEST_NAME);
+        assertThat(orderResponse.orderId()).isEqualTo(orderId);
+        assertThat(orderResponse.customerId()).isEqualTo(TEST_ORDER_REQUEST_CUSTOMER_ID);
     }
 
     @Test
@@ -115,22 +119,25 @@ public class CRUDOrderIT {
 
         // given
         Order order = new Order();
-        order.setName(TEST_ORDER_REQUEST_NAME);
+        order.setCustomerId(TEST_ORDER_REQUEST_CUSTOMER_ID);
         saveOrder(order);
         List<Order> ordersBeforeUpdate = orderRepository.listAll();
         assertThat(ordersBeforeUpdate.size()).isEqualTo(1);
-        Long orderId = ordersBeforeUpdate.get(0).getId();
+        Long orderId = ordersBeforeUpdate.get(0).getOrderId();
 
         // when
         callEndpointAndAssertStatusCodeAndReturn(
-                HttpMethod.PUT, "/order", generateOrderUpdateRequest(orderId), 204);
+                HttpMethod.PUT,
+                "/order",
+                generateOrderUpdateRequest(orderId),
+                HttpStatus.SC_NO_CONTENT);
 
         // then
         orderRepository.getEntityManager().clear();
         List<Order> orders = orderRepository.listAll();
         assertThat(orders.size()).isEqualTo(1);
-        assertThat(orders.get(0).getId()).isEqualTo(orderId);
-        assertThat(orders.get(0).getName()).isEqualTo(TEST_ORDER_REQUEST_NAME_2);
+        assertThat(orders.get(0).getOrderId()).isEqualTo(orderId);
+        assertThat(orders.get(0).getCustomerId()).isEqualTo(TEST_ORDER_REQUEST_CUSTOMER_ID_2);
     }
 
     @Test
@@ -138,14 +145,15 @@ public class CRUDOrderIT {
 
         // given
         Order order = new Order();
-        order.setName(TEST_ORDER_REQUEST_NAME);
+        order.setCustomerId(123L);
         saveOrder(order);
         List<Order> orders = orderRepository.listAll();
         assertThat(orders.size()).isEqualTo(1);
-        Long orderId = orders.get(0).getId();
+        Long orderId = orders.get(0).getOrderId();
 
         // when
-        callEndpointAndAssertStatusCodeAndReturn(HttpMethod.DELETE, "/order/" + orderId, "", 204);
+        callEndpointAndAssertStatusCodeAndReturn(
+                HttpMethod.DELETE, "/order/" + orderId, "", HttpStatus.SC_NO_CONTENT);
 
         // then
         assertThat(orderRepository.count()).isEqualTo(0);
