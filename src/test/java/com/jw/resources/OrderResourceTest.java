@@ -13,11 +13,13 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.ws.rs.HttpMethod;
 import java.util.List;
+
+import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 @QuarkusTest
 class OrderResourceTest {
@@ -55,13 +57,13 @@ class OrderResourceTest {
         OrderResponse orderResponse1 = new OrderResponse(1L, "test1");
         OrderResponse orderResponse2 = new OrderResponse(2L, "test2");
 
-        Order order1 = new Order(1L, "test1");
-        Order order2 = new Order(2L, "test2");
+        Order order1 = new Order(1L, 5L);
+        Order order2 = new Order(2L, 6L);
 
         Mockito.when(orderRepository.listAll()).thenReturn(List.of(order1, order2));
 
         OrdersResponse receivedResponse =
-                callEndpointAndAssertStatusCodeAndReturn(HttpMethod.GET, "/order", "", 200)
+                callEndpointAndAssertStatusCodeAndReturn(HttpMethod.GET, "/order", StringUtils.EMPTY, HttpStatus.SC_OK)
                         .as(OrdersResponse.class);
 
         assertThat(receivedResponse.getOrders())

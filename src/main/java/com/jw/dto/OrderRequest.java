@@ -1,3 +1,5 @@
 package com.jw.dto;
 
-public record OrderRequest(Long id, String name) {}
+import java.util.List;
+
+public record OrderRequest(Long customerId, List<ProductOrderRequest> productOrderRequests) {}

@@ -19,8 +19,7 @@ public class OrderService {
 
     @Transactional
     public void saveOrder(OrderRequest orderRequest) {
-        com.jw.entity.Order order = orderMapper.toOrder(orderRequest);
-        orderValidator.validate(order);
+        Order order = orderMapper.toOrder(orderRequest);
         orderRepository.persist(order);
     }
 
@@ -42,7 +41,7 @@ public class OrderService {
 
     @Transactional
     public void updateOrder(OrderRequest orderRequest) {
-        checkIfOrderExistsOrElseThrowException(orderRequest.id());
+        checkIfOrderExistsOrElseThrowException(orderRequest.customerId());
         orderRepository.getEntityManager().merge(orderMapper.toOrder(orderRequest));
     }
 

@@ -15,8 +15,7 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long orderId;
 
-    @NotBlank(message = "order name must be populated")
-    private String name;
+    private Long customerId;
 }
