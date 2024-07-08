@@ -17,7 +17,6 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final ValidatorService orderValidator;
 
     @Transactional
     public Order saveOrder(Order order) {
@@ -28,7 +27,9 @@ public class OrderService {
     public OrderResponse processOrder(OrderRequest orderRequest) {
         log.info("Processing order {}", orderRequest);
         Order order = orderMapper.toOrder(orderRequest);
+        order.setStatus("UNCOMPLETED");
         saveOrder(order);
+        log.info("Order {} processed", order);
         return orderMapper.toOrderResponse(order);
     }
 

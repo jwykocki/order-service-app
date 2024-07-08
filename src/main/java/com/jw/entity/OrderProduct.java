@@ -2,6 +2,8 @@ package com.jw.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "order_product_table")
@@ -13,7 +15,8 @@ import lombok.*;
 public class OrderProduct {
 
     @ManyToOne
-    @JoinColumn(name="orderid", nullable=false)
+    @JoinColumn(name = "orderid")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     Order order;
 
     @Id
@@ -22,5 +25,4 @@ public class OrderProduct {
 
     private Long productId;
     private int quantity;
-
 }
