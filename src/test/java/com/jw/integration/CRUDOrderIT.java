@@ -1,9 +1,12 @@
 package com.jw.integration;
 
 import static com.jw.OrderTestFixtures.*;
+import static com.jw.OrderTestFixtures.testOrderRequestWithTwoProducts;
+import static com.jw.TestHelper.*;
 import static com.jw.resources.RequestCaller.callEndpointAndAssertStatusCodeAndReturn;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
 import com.jw.dto.OrdersResponse;
 import com.jw.entity.Order;
@@ -14,9 +17,11 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.HttpMethod;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 @QuarkusTest
 @QuarkusTestResource(value = CRUDOrderITConfiguration.class)
@@ -47,19 +52,21 @@ public class CRUDOrderIT {
 
         // given
         assertThat(orderRepository.listAll().size()).isEqualTo(0);
+        OrderRequest orderRequest1 = testOrderRequestWithTwoProducts();
+        OrderRequest orderRequest2 = testOrderRequestWithOneProduct();
 
         // when
         callEndpointAndAssertStatusCodeAndReturn(
-                HttpMethod.POST, "/order", VALID_ORDER_REQUEST, 204);
+                HttpMethod.POST, ORDER_ENDPOINT, asString(orderRequest1), HttpStatus.SC_OK);
         callEndpointAndAssertStatusCodeAndReturn(
-                HttpMethod.POST, "/order", VALID_ORDER_REQUEST_2, 204);
+                HttpMethod.POST, ORDER_ENDPOINT, asString(orderRequest2), HttpStatus.SC_OK);
 
         // then
         List<Order> orders = orderRepository.listAll();
         assertThat(orders.size()).isEqualTo(2);
-        List<String> orderNames = orders.stream().map(Order::getName).toList();
-        assertThat(orderNames)
-                .containsExactlyInAnyOrder(TEST_ORDER_REQUEST_NAME, TEST_ORDER_REQUEST_NAME_2);
+        assertCorrectOrdersRequest(
+                orders,
+                List.of(testOrderRequestWithTwoProducts(), testOrderRequestWithOneProduct()));
     }
 
     @Test
@@ -67,85 +74,92 @@ public class CRUDOrderIT {
 
         // given
         assertThat(orderRepository.listAll().size()).isEqualTo(0);
-        Order order = new Order();
-        Order order2 = new Order();
-        order.setName(TEST_ORDER_REQUEST_NAME);
-        order2.setName(TEST_ORDER_REQUEST_NAME_2);
-        saveOrder(order);
+        Order order1 = fromOrderRequest(testOrderRequestWithTwoProducts());
+        Order order2 = fromOrderRequest(testOrderRequestWithOneProduct());
+        saveOrder(order1);
         saveOrder(order2);
         assertThat(orderRepository.listAll().size()).isEqualTo(2);
 
         // when
         OrdersResponse ordersResponse =
-                callEndpointAndAssertStatusCodeAndReturn(HttpMethod.GET, "/order", "", 200)
+                callEndpointAndAssertStatusCodeAndReturn(
+                                HttpMethod.GET, ORDER_ENDPOINT, StringUtils.EMPTY, HttpStatus.SC_OK)
                         .as(OrdersResponse.class);
 
         // then
         List<OrderResponse> orders = ordersResponse.getOrders();
         assertThat(orders.size()).isEqualTo(2);
-        List<String> orderNames = orders.stream().map(OrderResponse::name).toList();
-        assertThat(orderNames)
-                .containsExactlyInAnyOrder(TEST_ORDER_REQUEST_NAME, TEST_ORDER_REQUEST_NAME_2);
+        assertCorrectOrdersResponse(List.of(order1, order2), orders);
     }
 
     @Test
     public void shouldGetOrderById() {
 
         // given
-        Order order = new Order();
-        order.setName(TEST_ORDER_REQUEST_NAME);
+        Order order = fromOrderRequest(testOrderRequestWithTwoProducts());
         saveOrder(order);
         List<Order> orders = orderRepository.listAll();
         assertThat(orders.size()).isEqualTo(1);
-        Long orderId = orders.get(0).getId();
+        Long orderId = orders.get(0).getOrderId();
 
         // when
         OrderResponse orderResponse =
                 callEndpointAndAssertStatusCodeAndReturn(
-                                HttpMethod.GET, "/order/" + orderId, "", 200)
+                                HttpMethod.GET,
+                                ORDER_ENDPOINT + "/" + orderId,
+                                StringUtils.EMPTY,
+                                HttpStatus.SC_OK)
                         .as(OrderResponse.class);
 
         // then
-        assertThat(orderResponse.id()).isEqualTo(orderId);
-        assertThat(orderResponse.name()).isEqualTo(TEST_ORDER_REQUEST_NAME);
+        assertThat(orderResponse.orderId()).isEqualTo(orderId);
+        assertCorrectOrdersResponse(List.of(order), List.of(orderResponse));
     }
 
     @Test
     public void shouldUpdateOrder() {
 
         // given
-        Order order = new Order();
-        order.setName(TEST_ORDER_REQUEST_NAME);
-        saveOrder(order);
+        Order orderBeforeUpdate = fromOrderRequest(testOrderRequestWithTwoProducts());
+        saveOrder(orderBeforeUpdate);
         List<Order> ordersBeforeUpdate = orderRepository.listAll();
         assertThat(ordersBeforeUpdate.size()).isEqualTo(1);
-        Long orderId = ordersBeforeUpdate.get(0).getId();
+        Long orderId = ordersBeforeUpdate.get(0).getOrderId();
 
         // when
         callEndpointAndAssertStatusCodeAndReturn(
-                HttpMethod.PUT, "/order", generateOrderUpdateRequest(orderId), 204);
+                HttpMethod.PUT,
+                ORDER_ENDPOINT + "/" + orderId,
+                asString(testOrderRequestWithOneProduct()),
+                HttpStatus.SC_OK);
 
         // then
         orderRepository.getEntityManager().clear();
-        List<Order> orders = orderRepository.listAll();
-        assertThat(orders.size()).isEqualTo(1);
-        assertThat(orders.get(0).getId()).isEqualTo(orderId);
-        assertThat(orders.get(0).getName()).isEqualTo(TEST_ORDER_REQUEST_NAME_2);
+        List<Order> ordersAfterUpdate = orderRepository.listAll();
+        assertThat(ordersAfterUpdate).hasSize(1);
+        Order orderAfterUpdate = ordersAfterUpdate.get(0);
+        assertThat(orderAfterUpdate.getOrderId()).isEqualTo(orderId);
+        assertCorrectOrdersContent(
+                List.of(orderAfterUpdate),
+                List.of(fromOrderRequest(testOrderRequestWithOneProduct())));
     }
 
     @Test
     public void shouldDeleteOrder() {
 
         // given
-        Order order = new Order();
-        order.setName(TEST_ORDER_REQUEST_NAME);
+        Order order = fromOrderRequest(testOrderRequestWithTwoProducts());
         saveOrder(order);
         List<Order> orders = orderRepository.listAll();
         assertThat(orders.size()).isEqualTo(1);
-        Long orderId = orders.get(0).getId();
+        Long orderId = orders.get(0).getOrderId();
 
         // when
-        callEndpointAndAssertStatusCodeAndReturn(HttpMethod.DELETE, "/order/" + orderId, "", 204);
+        callEndpointAndAssertStatusCodeAndReturn(
+                HttpMethod.DELETE,
+                ORDER_ENDPOINT + "/" + orderId,
+                StringUtils.EMPTY,
+                HttpStatus.SC_NO_CONTENT);
 
         // then
         assertThat(orderRepository.count()).isEqualTo(0);

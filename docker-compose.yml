@@ -7,10 +7,12 @@ services:
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: products
     restart: always
     ports:
       - "33001:5432"
+    volumes:
+      - ./sql/init-products.sql:/docker-entrypoint-initdb.d/init-products.sql
+
 
   db-orders:
     image: postgres:16.3

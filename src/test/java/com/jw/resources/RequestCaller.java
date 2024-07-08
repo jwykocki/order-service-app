@@ -13,6 +13,8 @@ public class RequestCaller {
                 .body(body)
                 .request(method, path)
                 .then()
+                .log()
+                .all()
                 .statusCode(statusCode)
                 .extract()
                 .response()

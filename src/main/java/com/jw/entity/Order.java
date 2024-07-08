@@ -1,8 +1,10 @@
 package com.jw.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "order_table")
@@ -15,8 +17,14 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long orderId;
 
-    @NotBlank(message = "order name must be populated")
-    private String name;
+    private Long customerId;
+
+    private String status;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderid")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<OrderProduct> orderProducts;
 }
