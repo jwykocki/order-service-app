@@ -2,7 +2,10 @@ package com.jw.service;
 
 import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
+import com.jw.dto.reservation.ProductReservationRequest;
+import com.jw.dto.reservation.ReservationResult;
 import com.jw.entity.Order;
+import com.jw.entity.OrderStatus;
 import com.jw.error.OrderNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -17,20 +20,22 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+    private final ReservationService reservationService;
+
+    public OrderResponse processOrderRequest(OrderRequest orderRequest) {
+        log.info("Processing order {}", orderRequest);
+        Order order = createOrderInDatabase(orderRequest);
+        // TODO: some async is needed here
+        OrderStatus reservationStatus =
+                processReservationRequest(orderMapper.toProductReservationRequest(order));
+        updateOrderStatus(order, reservationStatus);
+        return orderMapper.toOrderResponse(order);
+    }
 
     @Transactional
     public Order saveOrder(Order order) {
         orderRepository.persist(order);
         return order;
-    }
-
-    public OrderResponse processOrder(OrderRequest orderRequest) {
-        log.info("Processing order {}", orderRequest);
-        Order order = orderMapper.toOrder(orderRequest);
-        order.setStatus("UNCOMPLETED");
-        saveOrder(order);
-        log.info("Order {} processed", order);
-        return orderMapper.toOrderResponse(order);
     }
 
     public List<OrderResponse> getAllOrders() {
@@ -63,6 +68,38 @@ public class OrderService {
     public Order updateOrder(Order order) {
         orderRepository.getEntityManager().merge(order);
         return order;
+    }
+
+    private Order createOrderInDatabase(OrderRequest orderRequest) {
+        Order order = orderMapper.toOrder(orderRequest);
+        setOrderStatus(order, OrderStatus.UNCOMPLETED);
+        saveOrder(order);
+        return order;
+    }
+
+    private void setOrderStatus(Order order, OrderStatus orderStatus) {
+        order.setStatus(orderStatus.toString());
+    }
+
+    private OrderStatus processReservationRequest(
+            ProductReservationRequest productReservationRequest) {
+        ReservationResult result =
+                reservationService.sendReservationRequest(productReservationRequest);
+        log.info("Received reservation result {}", result);
+        return getReservationStatus(result.getStatus());
+    }
+
+    private OrderStatus getReservationStatus(String status) {
+        return switch (status) {
+            case "SUCCESS" -> OrderStatus.RESERVED;
+            case "FAIL" -> OrderStatus.FAILED;
+            default -> throw new RuntimeException("Unexpected reservation status");
+        };
+    }
+
+    private Order updateOrderStatus(Order order, OrderStatus status) {
+        setOrderStatus(order, status);
+        return updateOrder(order);
     }
 
     private void checkIfOrderExistsOrElseThrowException(Long id) {

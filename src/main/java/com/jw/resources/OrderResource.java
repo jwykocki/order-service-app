@@ -3,7 +3,6 @@ package com.jw.resources;
 import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
 import com.jw.dto.OrdersResponse;
-import com.jw.service.OrderMapper;
 import com.jw.service.OrderService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
@@ -17,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 public class OrderResource {
 
     private final OrderService orderService;
-    private final OrderMapper orderMapper;
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
@@ -38,7 +36,7 @@ public class OrderResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public OrderResponse saveOrder(@Valid OrderRequest orderRequest) {
-        return orderService.processOrder(orderRequest);
+        return orderService.processOrderRequest(orderRequest);
     }
 
     @DELETE

@@ -2,6 +2,7 @@ package com.jw.service;
 
 import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
+import com.jw.dto.reservation.ProductReservationRequest;
 import com.jw.entity.Order;
 import org.mapstruct.Mapper;
 
@@ -10,4 +11,6 @@ public interface OrderMapper {
     Order toOrder(OrderRequest orderRequest);
 
     OrderResponse toOrderResponse(Order order);
+
+    ProductReservationRequest toProductReservationRequest(Order order);
 }
