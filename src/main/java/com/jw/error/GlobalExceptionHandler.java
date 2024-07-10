@@ -5,8 +5,10 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import java.util.Collections;
+import lombok.extern.slf4j.Slf4j;
 
 @Provider
+@Slf4j
 public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
 
     private Response handleInvalidOrderRequestException(InvalidOrderRequestException exception) {
@@ -24,7 +26,7 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
     }
 
     private Response handleGenericException(Throwable exception) {
-        exception.printStackTrace();
+        log.info(exception.getMessage(), exception);
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse("An error occurred", Collections.emptyList()))
                 .type(MediaType.APPLICATION_JSON)

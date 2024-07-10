@@ -5,12 +5,17 @@ import static com.jw.OrderTestFixtures.testOrderRequestWithTwoProducts;
 import static com.jw.TestHelper.*;
 import static com.jw.resources.RequestCaller.callEndpointAndAssertStatusCodeAndReturn;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
 import com.jw.dto.OrdersResponse;
+import com.jw.dto.reservation.ProductReservationRequest;
+import com.jw.dto.reservation.ReservationResult;
 import com.jw.entity.Order;
 import com.jw.service.OrderRepository;
+import com.jw.service.ReservationService;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.transaction.Transactional;
@@ -21,6 +26,7 @@ import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 @QuarkusTest
@@ -29,6 +35,8 @@ import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 public class CRUDOrderIT {
 
     private final OrderRepository orderRepository;
+
+    @InjectMock ReservationService reservationService;
 
     @Transactional
     public void deleteRows() {
@@ -54,6 +62,9 @@ public class CRUDOrderIT {
         assertThat(orderRepository.listAll().size()).isEqualTo(0);
         OrderRequest orderRequest1 = testOrderRequestWithTwoProducts();
         OrderRequest orderRequest2 = testOrderRequestWithOneProduct();
+        when(reservationService.sendReservationRequest(
+                        ArgumentMatchers.any(ProductReservationRequest.class)))
+                .thenReturn(new ReservationResult(0L, "SUCCESS", "test message"));
 
         // when
         callEndpointAndAssertStatusCodeAndReturn(
