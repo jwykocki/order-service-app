@@ -3,6 +3,7 @@ plugins {
 	id 'io.quarkus'
 	id("io.freefair.lombok") version "8.6"
 	id("com.diffplug.spotless") version "6.24.0"
+	id("au.com.dius.pact") version "4.6.11"
 }
 
 repositories {
@@ -21,9 +22,16 @@ dependencies {
 	implementation("io.quarkus:quarkus-hibernate-orm-panache")
 	implementation("io.quarkus:quarkus-hibernate-validator")
 	implementation('io.quarkus:quarkus-arc')
-	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'// https://mvnrepository.com/artifact/au.com.dius.pact.provider/gradle
+//	implementation group: 'au.com.dius.pact.provider', name: 'gradle', version: '4.6.11'
+	// https://mvnrepository.com/artifact/au.com.dius.pact/provider
+//	implementation group: 'au.com.dius.pact', name: 'provider', version: '4.6.11'
+	// https://mvnrepository.com/artifact/au.com.dius.pact.consumer/junit5
+	testImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.6.11'
+	testImplementation 'au.com.dius.pact.consumer:junit5:4.6.11' // Wersja może się różnić, sprawdź najnowszą
 
+
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 	testCompileOnly 'org.projectlombok:lombok:1.18.32'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
 	testImplementation 'io.quarkus:quarkus-junit5'
