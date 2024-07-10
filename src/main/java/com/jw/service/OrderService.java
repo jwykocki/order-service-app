@@ -86,7 +86,7 @@ public class OrderService {
         ReservationResult result =
                 reservationService.sendReservationRequest(productReservationRequest);
         log.info("Received reservation result {}", result);
-        return getReservationStatus(result.getStatus());
+        return getReservationStatus(result.status());
     }
 
     private OrderStatus getReservationStatus(String status) {
