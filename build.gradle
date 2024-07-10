@@ -27,8 +27,17 @@ dependencies {
 	// https://mvnrepository.com/artifact/au.com.dius.pact/provider
 //	implementation group: 'au.com.dius.pact', name: 'provider', version: '4.6.11'
 	// https://mvnrepository.com/artifact/au.com.dius.pact.consumer/junit5
-	testImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.6.11'
-	testImplementation 'au.com.dius.pact.consumer:junit5:4.6.11' // Wersja może się różnić, sprawdź najnowszą
+//	testImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.6.11'
+	testImplementation 'au.com.dius.pact.consumer:junit5:4.6.11'
+	// https://mvnrepository.com/artifact/au.com.dius/pact-jvm-provider-junit5
+//	testImplementation group: 'au.com.dius', name: 'pact-jvm-provider-junit5', version: '4.6.11'
+
+	// https://mvnrepository.com/artifact/au.com.dius.pact/consumer
+	testImplementation group: 'au.com.dius.pact', name: 'consumer', version: '4.6.11'
+
+	// https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+// https://mvnrepository.com/artifact/au.com.dius/pact-jvm-provider-gradle
+
 
 
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
