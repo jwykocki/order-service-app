@@ -12,6 +12,7 @@ import io.restassured.response.Response;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -92,7 +93,7 @@ public class PactOrderReservationTest {
                         .post("http://localhost:8082/reserve");
 
         // then
-        assertThat(response.getStatusCode()).isEqualTo(200);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SC_OK);
         assertThat(response.getHeader("Content-Type")).isEqualTo("application/json");
 //        assertThat(response.getBody().asString()).contains("condition", "true", "name", "tom");
     }
