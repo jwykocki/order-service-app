@@ -1,6 +1,7 @@
 package com.jw.contract;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
 
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
@@ -15,22 +16,31 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @PactTestFor(providerName = "productService", hostInterface = "localhost", port = "8082")
 class PactOrderReservationTest {
 
-    public static final String STRING_REQUEST =
+    private static final String CONTRACT_CONSUMER_REQUEST =
             """
-                    {
-                        "orderId": 10,
-                        "orderProducts": [
-                            {
-                                "productId": 1,
-                                "quantity": 1
-                            },
-                            {
-                                "productId": 2,
-                                "quantity": 2
-                            }
-                        ]
-                    }
-                    """;
+                {
+                    "orderId": 10,
+                    "orderProducts": [
+                        {
+                            "productId": 1,
+                            "quantity": 1
+                        },
+                        {
+                            "productId": 2,
+                            "quantity": 2
+                        }
+                    ]
+                }
+            """;
+
+    private static final String CONTRACT_PROVIDER_RESPONSE =
+            """
+                {
+                    "orderId": 10,
+                    "status": "SUCCESS",
+                    "message": "Reservation was processed successfully"
+                }
+            """;
 
     @Pact(consumer = "orderService")
     public RequestResponsePact testReserve(PactDslWithProvider builder) {
@@ -38,17 +48,10 @@ class PactOrderReservationTest {
                 .uponReceiving("POST request")
                 .path("/reserve")
                 .method("POST")
-                .body(STRING_REQUEST)
+                .body(CONTRACT_CONSUMER_REQUEST)
                 .willRespondWith()
                 .status(200)
-                .body(
-                        """
-                {
-                    "orderId": 10,
-                    "status": "SUCCESS",
-                    "message": "Reservation was processed successfully"
-                }
-                """)
+                .body(CONTRACT_PROVIDER_RESPONSE)
                 .toPact();
     }
 
@@ -56,8 +59,14 @@ class PactOrderReservationTest {
     @PactTestFor(pactMethod = "testReserve", pactVersion = PactSpecVersion.V3)
     void testReserve() {
 
-        given().contentType("application/json")
-                .body(STRING_REQUEST)
-                .post("http://localhost:8082/reserve");
+        given().when()
+                .contentType("application/json")
+                .body(CONTRACT_CONSUMER_REQUEST)
+                .post("http://localhost:8082/reserve")
+                .then()
+                .log()
+                .all()
+                .statusCode(200)
+                .body(is(CONTRACT_PROVIDER_RESPONSE));
     }
 }
