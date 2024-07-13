@@ -7,8 +7,10 @@ import com.jw.dto.reservation.ReservationResult;
 import com.jw.entity.Order;
 import com.jw.entity.OrderStatus;
 import com.jw.error.OrderNotFoundException;
+import com.jw.error.ReservationFailException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.InternalServerErrorException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,20 +24,14 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final ReservationService reservationService;
 
+    @Transactional
     public OrderResponse processOrderRequest(OrderRequest orderRequest) {
         log.info("Processing order {}", orderRequest);
         Order order = createOrderInDatabase(orderRequest);
-        // TODO: some async is needed here
         OrderStatus reservationStatus =
                 processReservationRequest(orderMapper.toProductReservationRequest(order));
         updateOrderStatus(order, reservationStatus);
         return orderMapper.toOrderResponse(order);
-    }
-
-    @Transactional
-    public Order saveOrder(Order order) {
-        orderRepository.persist(order);
-        return order;
     }
 
     public List<OrderResponse> getAllOrders() {
@@ -54,6 +50,7 @@ public class OrderService {
         return orderMapper.toOrderResponse(order);
     }
 
+    @Transactional
     public OrderResponse processUpdateOrder(Long orderId, OrderRequest orderRequest) {
         checkIfOrderExistsOrElseThrowException(orderId);
         Order order = orderMapper.toOrder(orderRequest);
@@ -64,8 +61,7 @@ public class OrderService {
         return orderMapper.toOrderResponse(order);
     }
 
-    @Transactional
-    public Order updateOrder(Order order) {
+    private Order updateOrder(Order order) {
         orderRepository.getEntityManager().merge(order);
         return order;
     }
@@ -73,7 +69,7 @@ public class OrderService {
     private Order createOrderInDatabase(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
         setOrderStatus(order, OrderStatus.UNCOMPLETED);
-        saveOrder(order);
+        orderRepository.persist(order);
         return order;
     }
 
@@ -92,8 +88,8 @@ public class OrderService {
     private OrderStatus getReservationStatus(String status) {
         return switch (status) {
             case "SUCCESS" -> OrderStatus.RESERVED;
-            case "FAIL" -> OrderStatus.FAILED;
-            default -> throw new RuntimeException("Unexpected reservation status");
+            case "FAIL" -> throw new ReservationFailException("Reservation could not be processed");
+            default -> throw new InternalServerErrorException("Unexpected reservation status");
         };
     }
 

@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 public enum OrderStatus {
     UNCOMPLETED("UNCOMPLETED"),
     RESERVED("RESERVED"),
-    COMPLETED("COMPLETED"),
-    FAILED("FAILED");
+    COMPLETED("COMPLETED");
     private final String status;
 }

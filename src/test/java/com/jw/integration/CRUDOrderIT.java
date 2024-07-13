@@ -11,7 +11,6 @@ import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
 import com.jw.dto.OrdersResponse;
 import com.jw.dto.reservation.ProductReservationRequest;
-import com.jw.dto.reservation.ReservationResult;
 import com.jw.entity.Order;
 import com.jw.service.OrderRepository;
 import com.jw.service.ReservationService;
@@ -41,7 +40,7 @@ public class CRUDOrderIT {
     @Transactional
     public void deleteRows() {
         orderRepository.deleteAll();
-        assertThat(orderRepository.count()).isEqualTo(0);
+        assertThat(orderRepository.listAll()).isEmpty();
     }
 
     @Transactional
@@ -59,12 +58,11 @@ public class CRUDOrderIT {
     public void shouldSaveOrdersToDatabase() {
 
         // given
-        assertThat(orderRepository.listAll().size()).isEqualTo(0);
         OrderRequest orderRequest1 = testOrderRequestWithTwoProducts();
         OrderRequest orderRequest2 = testOrderRequestWithOneProduct();
         when(reservationService.sendReservationRequest(
                         ArgumentMatchers.any(ProductReservationRequest.class)))
-                .thenReturn(new ReservationResult(0L, "SUCCESS", "test message"));
+                .thenReturn(TEST_RESERVATION_RESULT);
 
         // when
         callEndpointAndAssertStatusCodeAndReturn(
@@ -74,7 +72,7 @@ public class CRUDOrderIT {
 
         // then
         List<Order> orders = orderRepository.listAll();
-        assertThat(orders.size()).isEqualTo(2);
+        assertThat(orders).hasSize(2);
         assertCorrectOrdersRequest(
                 orders,
                 List.of(testOrderRequestWithTwoProducts(), testOrderRequestWithOneProduct()));
@@ -84,12 +82,11 @@ public class CRUDOrderIT {
     public void shouldGetOrdersFromDatabase() {
 
         // given
-        assertThat(orderRepository.listAll().size()).isEqualTo(0);
         Order order1 = fromOrderRequest(testOrderRequestWithTwoProducts());
         Order order2 = fromOrderRequest(testOrderRequestWithOneProduct());
         saveOrder(order1);
         saveOrder(order2);
-        assertThat(orderRepository.listAll().size()).isEqualTo(2);
+        assertThat(orderRepository.listAll()).hasSize(2);
 
         // when
         OrdersResponse ordersResponse =
@@ -99,7 +96,7 @@ public class CRUDOrderIT {
 
         // then
         List<OrderResponse> orders = ordersResponse.getOrders();
-        assertThat(orders.size()).isEqualTo(2);
+        assertThat(orders).hasSize(2);
         assertCorrectOrdersResponse(List.of(order1, order2), orders);
     }
 
@@ -110,7 +107,7 @@ public class CRUDOrderIT {
         Order order = fromOrderRequest(testOrderRequestWithTwoProducts());
         saveOrder(order);
         List<Order> orders = orderRepository.listAll();
-        assertThat(orders.size()).isEqualTo(1);
+        assertThat(orders).hasSize(1);
         Long orderId = orders.get(0).getOrderId();
 
         // when
@@ -134,7 +131,7 @@ public class CRUDOrderIT {
         Order orderBeforeUpdate = fromOrderRequest(testOrderRequestWithTwoProducts());
         saveOrder(orderBeforeUpdate);
         List<Order> ordersBeforeUpdate = orderRepository.listAll();
-        assertThat(ordersBeforeUpdate.size()).isEqualTo(1);
+        assertThat(ordersBeforeUpdate).hasSize(1);
         Long orderId = ordersBeforeUpdate.get(0).getOrderId();
 
         // when
@@ -162,7 +159,7 @@ public class CRUDOrderIT {
         Order order = fromOrderRequest(testOrderRequestWithTwoProducts());
         saveOrder(order);
         List<Order> orders = orderRepository.listAll();
-        assertThat(orders.size()).isEqualTo(1);
+        assertThat(orders).hasSize(1);
         Long orderId = orders.get(0).getOrderId();
 
         // when
@@ -173,6 +170,6 @@ public class CRUDOrderIT {
                 HttpStatus.SC_NO_CONTENT);
 
         // then
-        assertThat(orderRepository.count()).isEqualTo(0);
+        assertThat(orderRepository.listAll()).isEmpty();
     }
 }

@@ -18,6 +18,13 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                 .build();
     }
 
+    private Response handleReservationFailException(ReservationFailException exception) {
+        return Response.status(Response.Status.BAD_REQUEST)
+                .entity(new ErrorResponse(exception.getMessage(), Collections.emptyList()))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
     private Response handleOrderNotFoundException(OrderNotFoundException exception) {
         return Response.status(Response.Status.NOT_FOUND)
                 .entity(new ErrorResponse(exception.getMessage(), Collections.emptyList()))
@@ -27,7 +34,7 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
 
     private Response handleGenericException(Throwable exception) {
         log.info(exception.getMessage(), exception);
-        return Response.status(Response.Status.BAD_REQUEST)
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(new ErrorResponse("An error occurred", Collections.emptyList()))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
@@ -39,6 +46,8 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
             return handleInvalidOrderRequestException((InvalidOrderRequestException) exception);
         } else if (exception instanceof OrderNotFoundException) {
             return handleOrderNotFoundException((OrderNotFoundException) exception);
+        } else if (exception instanceof ReservationFailException) {
+            return handleReservationFailException((ReservationFailException) exception);
         } else {
             return handleGenericException(exception);
         }

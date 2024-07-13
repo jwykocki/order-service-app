@@ -3,13 +3,13 @@ CREATE DATABASE orders;
 \connect orders;
 
 CREATE TABLE order_table (
-                             orderId BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                             orderId BIGINT AS IDENTITY PRIMARY KEY,
                              customerId BIGINT NOT NULL,
                             status VARCHAR(255)
 );
 
 CREATE TABLE order_product_table (
-                            id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                            id BIGINT AS IDENTITY PRIMARY KEY,
                              orderId BIGINT,
                              productId BIGINT NOT NULL,
                             quantity INT NOT NULL
