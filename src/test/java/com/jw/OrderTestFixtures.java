@@ -2,6 +2,7 @@ package com.jw;
 
 import com.jw.dto.OrderProductRequest;
 import com.jw.dto.OrderRequest;
+import com.jw.dto.reservation.ReservationResult;
 import java.util.List;
 
 public class OrderTestFixtures {
@@ -25,4 +26,7 @@ public class OrderTestFixtures {
     public static OrderRequest testOrderRequestWithOneProduct() {
         return new OrderRequest(TEST_CUSTOMER_ID_2, List.of(TEST_PRODUCT_1));
     }
+
+    public static final ReservationResult TEST_RESERVATION_RESULT =
+            new ReservationResult(0L, "SUCCESS", "test message");
 }

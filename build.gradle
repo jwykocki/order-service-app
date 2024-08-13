@@ -3,6 +3,7 @@ plugins {
 	id 'io.quarkus'
 	id("io.freefair.lombok") version "8.6"
 	id("com.diffplug.spotless") version "6.24.0"
+	id("au.com.dius.pact") version "4.6.11"
 }
 
 repositories {
@@ -11,8 +12,8 @@ repositories {
 }
 
 dependencies {
-	implementation 'io.quarkus:quarkus-rest-client-jackson'
 	implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+	implementation 'io.quarkus:quarkus-rest-client-jackson'
 	implementation 'io.quarkus:quarkus-arc'
 	implementation 'io.quarkus:quarkus-rest-jackson'
 	implementation 'io.quarkus:quarkus-rest'
@@ -22,10 +23,18 @@ dependencies {
 	implementation("io.quarkus:quarkus-hibernate-validator")
 	implementation('io.quarkus:quarkus-arc')
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	implementation group: 'io.quarkiverse.pact', name: 'quarkus-pact-provider', version: '1.4.2'
+	implementation( "org.hibernate:hibernate-core:6.0.0.Final")
+	implementation("org.hibernate.orm:hibernate-core:6.0.0.Final")
+			implementation("io.quarkus:quarkus-hibernate-orm:*")
+
+
+	compileOnly 'org.projectlombok:lombok:1.18.32'
+	annotationProcessor 'org.projectlombok:lombok:1.18.32'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
-	testCompileOnly 'org.projectlombok:lombok:1.18.32'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+	testImplementation 'au.com.dius.pact.consumer:junit5:4.6.11'
+	testImplementation group: 'au.com.dius.pact', name: 'consumer', version: '4.6.11'
 	testImplementation 'io.quarkus:quarkus-junit5'
 	testImplementation 'io.rest-assured:rest-assured'
 	testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.1.0'
@@ -33,7 +42,6 @@ dependencies {
 	testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.26.0'
 	testImplementation "org.testcontainers:testcontainers:1.19.8"
 	testImplementation "org.testcontainers:postgresql:1.19.8"
-
 }
 
 group 'com.jw'
