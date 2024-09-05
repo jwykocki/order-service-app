@@ -3,7 +3,10 @@ package com.jw.service;
 import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
 import com.jw.dto.reservation.ProductReservationRequest;
+import com.jw.dto.unprocessed.orders.OrderProductQueue;
+import com.jw.dto.unprocessed.orders.UnprocessedOrderQueue;
 import com.jw.entity.Order;
+import com.jw.entity.OrderProduct;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "cdi")
@@ -13,4 +16,8 @@ public interface OrderMapper {
     OrderResponse toOrderResponse(Order order);
 
     ProductReservationRequest toProductReservationRequest(Order order);
+
+    UnprocessedOrderQueue toUnprocessedOrderQueue(Order order);
+
+    OrderProductQueue toOrderProductQueue(OrderProduct orderProduct);
 }

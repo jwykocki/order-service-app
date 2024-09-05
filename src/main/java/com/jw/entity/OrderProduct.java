@@ -12,6 +12,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @Setter
 @Builder
+@ToString
 public class OrderProduct {
 
     @ManyToOne
@@ -25,4 +26,5 @@ public class OrderProduct {
 
     private Long productId;
     private int quantity;
+    private String status;
 }

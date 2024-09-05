@@ -9,10 +9,12 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Path("/order")
 @RequiredArgsConstructor
 @ApplicationScoped
+@Slf4j
 public class OrderResource {
 
     private final OrderService orderService;
@@ -36,6 +38,7 @@ public class OrderResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public OrderResponse saveOrder(@Valid OrderRequest orderRequest) {
+        log.info("Received save order request");
         return orderService.processOrderRequest(orderRequest);
     }
 

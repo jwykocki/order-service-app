@@ -2,15 +2,11 @@ package com.jw.service;
 
 import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
-import com.jw.dto.reservation.ProductReservationRequest;
-import com.jw.dto.reservation.ReservationResult;
 import com.jw.entity.Order;
 import com.jw.entity.OrderStatus;
 import com.jw.error.OrderNotFoundException;
-import com.jw.error.ReservationFailException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.InternalServerErrorException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,15 +18,14 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final ReservationService reservationService;
+    private final QueueService queueService;
 
     @Transactional
     public OrderResponse processOrderRequest(OrderRequest orderRequest) {
-        log.info("Processing order {}", orderRequest);
+        log.info("Saving order in database");
         Order order = createOrderInDatabase(orderRequest);
-        OrderStatus reservationStatus =
-                processReservationRequest(orderMapper.toProductReservationRequest(order));
-        updateOrderStatus(order, reservationStatus);
+        log.info("Saving order on queue");
+        queueService.saveOrderOnUnprocessedOrders(orderMapper.toUnprocessedOrderQueue(order));
         return orderMapper.toOrderResponse(order);
     }
 
@@ -75,27 +70,6 @@ public class OrderService {
 
     private void setOrderStatus(Order order, OrderStatus orderStatus) {
         order.setStatus(orderStatus.toString());
-    }
-
-    private OrderStatus processReservationRequest(
-            ProductReservationRequest productReservationRequest) {
-        ReservationResult result =
-                reservationService.sendReservationRequest(productReservationRequest);
-        log.info("Received reservation result {}", result);
-        return getReservationStatus(result.status());
-    }
-
-    private OrderStatus getReservationStatus(String status) {
-        return switch (status) {
-            case "SUCCESS" -> OrderStatus.RESERVED;
-            case "FAIL" -> throw new ReservationFailException("Reservation could not be processed");
-            default -> throw new InternalServerErrorException("Unexpected reservation status");
-        };
-    }
-
-    private Order updateOrderStatus(Order order, OrderStatus status) {
-        setOrderStatus(order, status);
-        return updateOrder(order);
     }
 
     private void checkIfOrderExistsOrElseThrowException(Long id) {
