@@ -1,4 +1,4 @@
-package com.jw.dto;
+package com.jw.dto.response;
 
 import com.jw.dto.processed.ProductReservationResponse;
 import java.util.List;

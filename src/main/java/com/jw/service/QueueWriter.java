@@ -8,7 +8,7 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 
 @ApplicationScoped
-public class QueueService {
+public class QueueWriter {
 
     @Channel("unprocessed-orders")
     @Broadcast
@@ -22,7 +22,7 @@ public class QueueService {
         unprocessedOrdersEmitter.send(order);
     }
 
-    public void saveProduct(UnprocessedProductQueue product) {
+    public void saveProductOnUnprocessedProducts(UnprocessedProductQueue product) {
         unprocessedProductsEmitter.send(product);
     }
 }

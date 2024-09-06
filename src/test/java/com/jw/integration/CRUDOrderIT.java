@@ -7,9 +7,9 @@ import static com.jw.resources.RequestCaller.callEndpointAndAssertStatusCodeAndR
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.jw.dto.OrderRequest;
-import com.jw.dto.OrderResponse;
-import com.jw.dto.OrdersResponse;
+import com.jw.dto.request.OrderRequest;
+import com.jw.dto.response.OrderResponse;
+import com.jw.dto.response.OrdersResponse;
 import com.jw.dto.reservation.ProductReservationRequest;
 import com.jw.entity.Order;
 import com.jw.service.OrderRepository;

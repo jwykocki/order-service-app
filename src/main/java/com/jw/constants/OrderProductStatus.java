@@ -1,4 +1,4 @@
-package com.jw.entity;
+package com.jw.constants;
 
 public interface OrderProductStatus {
 

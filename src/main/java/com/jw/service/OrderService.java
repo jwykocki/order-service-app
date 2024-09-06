@@ -1,11 +1,11 @@
 package com.jw.service;
 
-import static com.jw.entity.OrderProductStatus.UNKNOWN;
-import static com.jw.entity.OrderStatus.PROCESSED;
-import static com.jw.entity.OrderStatus.UNPROCESSED;
+import static com.jw.constants.OrderProductStatus.UNKNOWN;
+import static com.jw.constants.OrderStatus.PROCESSED;
+import static com.jw.constants.OrderStatus.UNPROCESSED;
 
-import com.jw.dto.OrderRequest;
-import com.jw.dto.OrderResponse;
+import com.jw.dto.request.OrderRequest;
+import com.jw.dto.response.OrderResponse;
 import com.jw.entity.Order;
 import com.jw.entity.OrderProduct;
 import com.jw.error.OrderNotFoundException;
@@ -22,14 +22,14 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final QueueService queueService;
+    private final QueueWriter queueWriter;
 
     @Transactional
     public OrderResponse processOrderRequest(OrderRequest orderRequest) {
         log.info("Saving order in database");
         Order order = createOrderInDatabase(orderRequest);
         log.info("Saving order on queue");
-        queueService.saveOrderOnUnprocessedOrders(orderMapper.toUnprocessedOrderQueue(order));
+        queueWriter.saveOrderOnUnprocessedOrders(orderMapper.toUnprocessedOrderQueue(order));
         return orderMapper.toOrderResponse(order);
     }
 

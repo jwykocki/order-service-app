@@ -1,8 +1,8 @@
 package com.jw.resources;
 
-import com.jw.dto.OrderRequest;
-import com.jw.dto.OrderResponse;
-import com.jw.dto.OrdersResponse;
+import com.jw.dto.request.OrderRequest;
+import com.jw.dto.response.OrderResponse;
+import com.jw.dto.response.OrdersResponse;
 import com.jw.service.OrderService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;

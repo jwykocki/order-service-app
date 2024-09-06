@@ -1,7 +1,7 @@
 package com.jw;
 
-import com.jw.dto.OrderProductRequest;
-import com.jw.dto.OrderRequest;
+import com.jw.dto.request.OrderProductRequest;
+import com.jw.dto.request.OrderRequest;
 import com.jw.dto.reservation.ReservationResult;
 import java.util.List;
 

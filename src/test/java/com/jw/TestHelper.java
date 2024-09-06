@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.jw.dto.OrderProductRequest;
-import com.jw.dto.OrderRequest;
-import com.jw.dto.OrderResponse;
+import com.jw.dto.request.OrderProductRequest;
+import com.jw.dto.request.OrderRequest;
+import com.jw.dto.response.OrderResponse;
 import com.jw.entity.Order;
 import com.jw.entity.OrderProduct;
 import java.util.List;
