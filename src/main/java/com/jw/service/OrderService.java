@@ -26,9 +26,8 @@ public class OrderService {
 
     @Transactional
     public OrderResponse processOrderRequest(OrderRequest orderRequest) {
-        log.info("Saving order in database");
         Order order = createOrderInDatabase(orderRequest);
-        log.info("Saving order on queue");
+        log.info("Saved order in database (id = {})", order.getOrderId());
         queueWriter.saveOrderOnUnprocessedOrders(orderMapper.toUnprocessedOrderQueue(order));
         return orderMapper.toOrderResponse(order);
     }
@@ -88,6 +87,6 @@ public class OrderService {
     private void checkIfOrderExistsOrElseThrowException(Long id) {
         orderRepository
                 .findByIdOptional(id)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order with id = %s was not found".formatted(id)));
     }
 }

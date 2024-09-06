@@ -1,5 +1,6 @@
 package com.jw.service;
 
+import com.jw.dto.processed.ProductReservationResult;
 import com.jw.dto.unprocessed.orders.UnprocessedOrderQueue;
 import com.jw.dto.unprocessed.products.UnprocessedProductQueue;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,7 +21,7 @@ public class QueueReader {
 
     @Incoming("unprocessed-orders")
     public void readUnprocessedOrders(UnprocessedOrderQueue order) {
-        log.info("Processing: {}", order);
+        log.info("Received order from unprocessed-orders queue (id = {})", order.orderId());
         List<UnprocessedProductQueue> unprocessedProducts =
                 order.orderProducts().stream()
                         .map(p -> new UnprocessedProductQueue(order.orderId(), p))
@@ -31,6 +32,8 @@ public class QueueReader {
     @Incoming("processed-products")
     public void readProcessedProducts(byte[] product) {
         String value = new String(product, StandardCharsets.UTF_8);
-        productService.updateOrderProductStatus(mapper.toProductReservationResult(value));
+        ProductReservationResult reservationResult = mapper.toProductReservationResult(value);
+        log.info("Received reservation result from processed-products queue (id = {})", reservationResult.orderId());
+        productService.updateOrderProductStatus(reservationResult);
     }
 }
