@@ -33,7 +33,9 @@ public class QueueReader {
     public void readProcessedProducts(byte[] product) {
         String value = new String(product, StandardCharsets.UTF_8);
         ProductReservationResult reservationResult = mapper.toProductReservationResult(value);
-        log.info("Received reservation result from processed-products queue (id = {})", reservationResult.orderId());
+        log.info(
+                "Received reservation result from processed-products queue (id = {})",
+                reservationResult.orderId());
         productService.updateOrderProductStatus(reservationResult);
     }
 }

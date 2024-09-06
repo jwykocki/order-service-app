@@ -27,7 +27,6 @@ public class OrderResource {
         OrdersResponse ordersResponse = new OrdersResponse(orderService.getAllOrders());
         log.info("Successfully processed get all orders request");
         return ordersResponse;
-
     }
 
     @GET

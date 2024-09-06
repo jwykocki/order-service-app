@@ -87,6 +87,9 @@ public class OrderService {
     private void checkIfOrderExistsOrElseThrowException(Long id) {
         orderRepository
                 .findByIdOptional(id)
-                .orElseThrow(() -> new OrderNotFoundException("Order with id = %s was not found".formatted(id)));
+                .orElseThrow(
+                        () ->
+                                new OrderNotFoundException(
+                                        "Order with id = %s was not found".formatted(id)));
     }
 }
