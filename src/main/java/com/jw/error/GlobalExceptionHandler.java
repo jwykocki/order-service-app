@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
 
     private Response handleInvalidOrderRequestException(InvalidOrderRequestException exception) {
+        log.error("Invalid order request: {}", exception.getMessage());
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse(exception.getMessage(), exception.getViolations()))
                 .type(MediaType.APPLICATION_JSON)
@@ -19,6 +20,7 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
     }
 
     private Response handleReservationFailException(ReservationFailException exception) {
+        log.error("Reservation failed: {}", exception.getMessage());
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse(exception.getMessage(), Collections.emptyList()))
                 .type(MediaType.APPLICATION_JSON)
@@ -26,6 +28,7 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
     }
 
     private Response handleOrderNotFoundException(OrderNotFoundException exception) {
+        log.error("Order not found: {}", exception.getMessage());
         return Response.status(Response.Status.NOT_FOUND)
                 .entity(new ErrorResponse(exception.getMessage(), Collections.emptyList()))
                 .type(MediaType.APPLICATION_JSON)
@@ -33,6 +36,7 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
     }
 
     private Response handleGenericException(Throwable exception) {
+        log.error("An error occurred: {}", exception.getMessage());
         log.info(exception.getMessage(), exception);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(new ErrorResponse("An error occurred", Collections.emptyList()))

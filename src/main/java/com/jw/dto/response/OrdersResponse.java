@@ -1,4 +1,4 @@
-package com.jw.dto;
+package com.jw.dto.response;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

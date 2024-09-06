@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.jw.dto.OrderProductRequest;
-import com.jw.dto.OrderRequest;
-import com.jw.dto.OrderResponse;
+import com.jw.constants.OrderProductStatus;
+import com.jw.dto.processed.ProductReservationResponse;
+import com.jw.dto.request.OrderProductRequest;
+import com.jw.dto.request.OrderRequest;
+import com.jw.dto.response.OrderResponse;
 import com.jw.entity.Order;
 import com.jw.entity.OrderProduct;
 import java.util.List;
@@ -63,8 +65,17 @@ public class TestHelper {
                 .build();
     }
 
+    private static OrderProduct createOrderProduct(
+            ProductReservationResponse productReservationResponse) {
+        return OrderProduct.builder()
+                .productId(productReservationResponse.productId())
+                .quantity(productReservationResponse.quantity())
+                .build();
+    }
+
     private static OrderProduct createOrderProduct(OrderProductRequest orderProductRequest) {
         return OrderProduct.builder()
+                .status(OrderProductStatus.RESERVED)
                 .productId(orderProductRequest.productId())
                 .quantity(orderProductRequest.quantity())
                 .build();

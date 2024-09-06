@@ -5,15 +5,15 @@ import static com.jw.OrderTestFixtures.testOrderRequestWithTwoProducts;
 import static com.jw.TestHelper.*;
 import static com.jw.resources.RequestCaller.callEndpointAndAssertStatusCodeAndReturn;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-import com.jw.dto.OrderRequest;
-import com.jw.dto.OrderResponse;
-import com.jw.dto.OrdersResponse;
-import com.jw.dto.reservation.ProductReservationRequest;
+import com.jw.dto.request.OrderRequest;
+import com.jw.dto.response.OrderResponse;
+import com.jw.dto.response.OrdersResponse;
 import com.jw.entity.Order;
 import com.jw.service.OrderRepository;
-import com.jw.service.ReservationService;
+import com.jw.service.QueueWriter;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -25,7 +25,6 @@ import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 @QuarkusTest
@@ -35,7 +34,7 @@ public class CRUDOrderIT {
 
     private final OrderRepository orderRepository;
 
-    @InjectMock ReservationService reservationService;
+    @InjectMock QueueWriter queueWriter;
 
     @Transactional
     public void deleteRows() {
@@ -60,9 +59,9 @@ public class CRUDOrderIT {
         // given
         OrderRequest orderRequest1 = testOrderRequestWithTwoProducts();
         OrderRequest orderRequest2 = testOrderRequestWithOneProduct();
-        when(reservationService.sendReservationRequest(
-                        ArgumentMatchers.any(ProductReservationRequest.class)))
-                .thenReturn(TEST_RESERVATION_RESULT);
+
+        doNothing().when(queueWriter).saveProductOnUnprocessedProducts(any());
+        doNothing().when(queueWriter).saveOrderOnUnprocessedOrders(any());
 
         // when
         callEndpointAndAssertStatusCodeAndReturn(
@@ -72,6 +71,7 @@ public class CRUDOrderIT {
 
         // then
         List<Order> orders = orderRepository.listAll();
+        verify(queueWriter, times(orders.size())).saveOrderOnUnprocessedOrders(any());
         assertThat(orders).hasSize(2);
         assertCorrectOrdersRequest(
                 orders,

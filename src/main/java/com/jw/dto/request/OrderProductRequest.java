@@ -1,4 +1,4 @@
-package com.jw.dto;
+package com.jw.dto.request;
 
 import jakarta.validation.constraints.Min;
 

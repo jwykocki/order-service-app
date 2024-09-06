@@ -12,6 +12,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @Setter
 @Builder
+@ToString
 public class OrderProduct {
 
     @ManyToOne
@@ -20,9 +21,11 @@ public class OrderProduct {
     Order order;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_generator")
+    @SequenceGenerator(name = "product_generator", sequenceName = "product_seq", allocationSize = 1)
     private Long id;
 
     private Long productId;
     private int quantity;
+    private String status;
 }
