@@ -13,7 +13,6 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @Setter
 @Builder
-@ToString
 public class Order {
 
     @Id

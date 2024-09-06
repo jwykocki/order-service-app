@@ -1,9 +1,13 @@
 package com.jw.service;
 
+import static com.jw.entity.OrderProductStatus.UNKNOWN;
+import static com.jw.entity.OrderStatus.PROCESSED;
+import static com.jw.entity.OrderStatus.UNPROCESSED;
+
 import com.jw.dto.OrderRequest;
 import com.jw.dto.OrderResponse;
 import com.jw.entity.Order;
-import com.jw.entity.OrderStatus;
+import com.jw.entity.OrderProduct;
 import com.jw.error.OrderNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -42,7 +46,19 @@ public class OrderService {
     public OrderResponse getOrderById(Long id) {
         checkIfOrderExistsOrElseThrowException(id);
         Order order = orderRepository.findById(id);
+        order.setStatus(updateOrderStatus(order.getOrderProducts()));
         return orderMapper.toOrderResponse(order);
+    }
+
+    private String updateOrderStatus(List<OrderProduct> orderProducts) {
+        List<OrderProduct> orderProducts1 =
+                orderProducts.stream()
+                        .filter(orderProduct -> orderProduct.getStatus().equals("NOT KNOWN"))
+                        .toList();
+        if (orderProducts1.isEmpty()) {
+            return PROCESSED;
+        }
+        return UNPROCESSED;
     }
 
     @Transactional
@@ -52,8 +68,8 @@ public class OrderService {
         order.setOrderId(orderId);
         String status = orderRepository.findById(orderId).getStatus();
         order.setStatus(status);
-        updateOrder(order);
-        return orderMapper.toOrderResponse(order);
+        Order updatedOrder = updateOrder(order);
+        return orderMapper.toOrderResponse(updatedOrder);
     }
 
     private Order updateOrder(Order order) {
@@ -63,13 +79,10 @@ public class OrderService {
 
     private Order createOrderInDatabase(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
-        setOrderStatus(order, OrderStatus.UNCOMPLETED);
+        order.getOrderProducts().forEach(p -> p.setStatus(UNKNOWN));
+        order.setStatus(UNPROCESSED);
         orderRepository.persist(order);
         return order;
-    }
-
-    private void setOrderStatus(Order order, OrderStatus orderStatus) {
-        order.setStatus(orderStatus.toString());
     }
 
     private void checkIfOrderExistsOrElseThrowException(Long id) {

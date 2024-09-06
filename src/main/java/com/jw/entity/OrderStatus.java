@@ -1,11 +1,7 @@
 package com.jw.entity;
 
-import lombok.RequiredArgsConstructor;
+public interface OrderStatus {
 
-@RequiredArgsConstructor
-public enum OrderStatus {
-    UNCOMPLETED("UNCOMPLETED"),
-    RESERVED("RESERVED"),
-    COMPLETED("COMPLETED");
-    private final String status;
+    String UNPROCESSED = "UNPROCESSED";
+    String PROCESSED = "PROCESSED";
 }
