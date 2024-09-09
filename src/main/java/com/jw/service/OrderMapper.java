@@ -1,5 +1,6 @@
 package com.jw.service;
 
+import com.jw.dto.finalize.request.*;
 import com.jw.dto.request.OrderRequest;
 import com.jw.dto.reservation.ProductReservationRequest;
 import com.jw.dto.response.OrderResponse;
@@ -20,4 +21,7 @@ public interface OrderMapper {
     UnprocessedOrderQueue toUnprocessedOrderQueue(Order order);
 
     OrderProductQueue toOrderProductQueue(OrderProduct orderProduct);
+
+    OrderProductFinalizeResponse toOrderProductFinalizeResponse(
+            FinalizedProductQueue finalizedProductQueue);
 }

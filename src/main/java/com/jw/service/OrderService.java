@@ -43,21 +43,20 @@ public class OrderService {
     }
 
     public OrderResponse getOrderById(Long id) {
-        checkIfOrderExistsOrElseThrowException(id);
-        Order order = orderRepository.findById(id);
-        order.setStatus(updateOrderStatus(order.getOrderProducts()));
+        Order order = getOrderOrElseThrowException(id);
         return orderMapper.toOrderResponse(order);
     }
 
-    private String updateOrderStatus(List<OrderProduct> orderProducts) {
+    @Transactional
+    public void updateOrderStatus(Long orderId) {
+        Order order = getOrderOrElseThrowException(orderId);
         List<OrderProduct> orderProducts1 =
-                orderProducts.stream()
-                        .filter(orderProduct -> orderProduct.getStatus().equals("NOT KNOWN"))
+                order.getOrderProducts().stream()
+                        .filter(orderProduct -> orderProduct.getStatus().equals(UNKNOWN))
                         .toList();
         if (orderProducts1.isEmpty()) {
-            return PROCESSED;
+            order.setStatus(PROCESSED);
         }
-        return UNPROCESSED;
     }
 
     @Transactional
@@ -86,6 +85,15 @@ public class OrderService {
 
     private void checkIfOrderExistsOrElseThrowException(Long id) {
         orderRepository
+                .findByIdOptional(id)
+                .orElseThrow(
+                        () ->
+                                new OrderNotFoundException(
+                                        "Order with id = %s was not found".formatted(id)));
+    }
+
+    private Order getOrderOrElseThrowException(Long id) {
+        return orderRepository
                 .findByIdOptional(id)
                 .orElseThrow(
                         () ->

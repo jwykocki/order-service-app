@@ -17,6 +17,7 @@ public class QueueReader {
 
     private final QueueWriter queueWriter;
     private final ProductService productService;
+    private final OrderService orderService;
     private final OrderProductMapper mapper;
 
     @Incoming("unprocessed-orders")
@@ -37,5 +38,6 @@ public class QueueReader {
                 "Received reservation result from processed-products queue (id = {})",
                 reservationResult.orderId());
         productService.updateOrderProductStatus(reservationResult);
+        orderService.updateOrderStatus(reservationResult.orderId());
     }
 }
