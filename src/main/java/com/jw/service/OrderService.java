@@ -4,6 +4,7 @@ import static com.jw.constants.OrderProductStatus.UNKNOWN;
 import static com.jw.constants.OrderStatus.PROCESSED;
 import static com.jw.constants.OrderStatus.UNPROCESSED;
 
+import com.jw.dto.finalize.request.OrderFinalizeResponse;
 import com.jw.dto.request.OrderRequest;
 import com.jw.dto.response.OrderResponse;
 import com.jw.entity.Order;
@@ -23,6 +24,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final QueueWriter queueWriter;
+    private final FinalizeOrderService finalizeOrderService;
 
     @Transactional
     public OrderResponse processOrderRequest(OrderRequest orderRequest) {
@@ -37,9 +39,11 @@ public class OrderService {
     }
 
     @Transactional
-    public void deleteOrder(Long id) {
-        checkIfOrderExistsOrElseThrowException(id);
+    public OrderFinalizeResponse deleteOrder(Long id) {
+        Order order = getOrderOrElseThrowException(id);
+        OrderFinalizeResponse orderFinalizeResponse = finalizeOrderService.deleteProductReservation(order);
         orderRepository.deleteById(id);
+        return orderFinalizeResponse;
     }
 
     public OrderResponse getOrderById(Long id) {

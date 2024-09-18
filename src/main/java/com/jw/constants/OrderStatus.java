@@ -4,4 +4,5 @@ public interface OrderStatus {
 
     String UNPROCESSED = "UNPROCESSED";
     String PROCESSED = "PROCESSED";
+    String FINALIZED = "FINALIZED";
 }

@@ -1,10 +1,12 @@
 package com.jw.service;
 
 import com.jw.constants.OrderProductStatus;
+import com.jw.constants.OrderStatus;
 import com.jw.dto.finalize.request.*;
 import com.jw.entity.Order;
 import com.jw.entity.OrderProduct;
 import com.jw.error.NotEnoughReservedAmountException;
+import com.jw.error.OrderAlreadyFinalizedException;
 import com.jw.error.OrderNotFoundException;
 import com.jw.error.ProductNotReservedException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,22 +27,35 @@ public class FinalizeOrderService {
 
     @Transactional
     public OrderFinalizeResponse finalizeOrder(OrderFinalizeRequest request) {
-        // check if exists
+
         Order order = findOrderOrElseThrowException(request.orderId());
-        // check products correctness
+        checkIfOrderWasNotFinalizedBefore(order);
         List<FinalizedOrderQueue> finalizedProductsQueue =
-                createFinalizedOrderQueue(
+                finalizeOrderAndReturnFinalizedProducts(
                         order.getOrderId(), request.products(), order.getOrderProducts());
-        // put finalized order on queue
         finalizedProductsQueue.forEach(queueWriter::saveProductOnFinalizedProducts);
-        // update quantity and status
         finalizedProductsQueue.forEach(p -> updateOrderProduct(p.product(), order));
-        order.setStatus("FINALIZED");
-        // update order status to FINALIZED
+        order.setStatus(OrderStatus.FINALIZED);
         return new OrderFinalizeResponse(
                 request.orderId(),
                 request.customerId(),
                 toOrderProductFinalizeResponse(finalizedProductsQueue));
+    }
+
+    public OrderFinalizeResponse deleteProductReservation(Order order){
+        checkIfOrderWasNotFinalizedBefore(order);
+        List<FinalizedOrderQueue> toFinalizeProducts = order.getOrderProducts().stream().map(p -> new FinalizedOrderQueue(order.getOrderId(), new FinalizedProductQueue(p.getProductId(), p.getQuantity(), 0))).toList();
+        toFinalizeProducts.forEach(queueWriter::saveProductOnFinalizedProducts);
+        return new OrderFinalizeResponse(
+                order.getOrderId(),
+                order.getCustomerId(),
+                toOrderProductFinalizeResponse(toFinalizeProducts));
+    }
+
+    private void checkIfOrderWasNotFinalizedBefore(Order order) {
+        if(order.getStatus().equals(OrderStatus.FINALIZED)){
+            throw new OrderAlreadyFinalizedException("Order was already finalized");
+        }
     }
 
     private static void updateOrderProduct(FinalizedProductQueue p, Order order) {
@@ -50,7 +65,7 @@ public class FinalizeOrderService {
                         .findFirst()
                         .get();
         orderProduct1.setQuantity(p.finalized());
-        orderProduct1.setStatus("FINALIZED");
+        orderProduct1.setStatus(OrderStatus.FINALIZED);
     }
 
     private List<OrderProductFinalizeResponse> toOrderProductFinalizeResponse(
@@ -60,7 +75,7 @@ public class FinalizeOrderService {
                 .toList();
     }
 
-    private List<FinalizedOrderQueue> createFinalizedOrderQueue(
+    private List<FinalizedOrderQueue> finalizeOrderAndReturnFinalizedProducts(
             Long orderId,
             List<OrderProductFinalizeRequest> toFinalizeProducts,
             List<OrderProduct> reservedProducts) {

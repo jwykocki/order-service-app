@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @ApplicationScoped
 @Slf4j
-public class FinalizeOrderResources {
+public class FinalizeOrderResource {
 
     private final OrderService orderService;
     private final FinalizeOrderService finalizeOrderService;

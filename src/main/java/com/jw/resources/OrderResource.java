@@ -1,5 +1,6 @@
 package com.jw.resources;
 
+import com.jw.dto.finalize.request.OrderFinalizeResponse;
 import com.jw.dto.request.OrderRequest;
 import com.jw.dto.response.OrderResponse;
 import com.jw.dto.response.OrdersResponse;
@@ -52,10 +53,11 @@ public class OrderResource {
 
     @DELETE
     @Path("/{id}")
-    public void deleteOrder(@PathParam("id") Long id) {
+    public OrderFinalizeResponse deleteOrder(@PathParam("id") Long id) {
         log.info("Received delete order request (id = {})", id);
-        orderService.deleteOrder(id);
+        OrderFinalizeResponse orderFinalizeResponse = orderService.deleteOrder(id);
         log.info("Successfully processed delete order request (id = {})", id);
+        return orderFinalizeResponse;
     }
 
     @PUT
