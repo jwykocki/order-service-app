@@ -42,9 +42,17 @@ public class FinalizeOrderService {
                 toOrderProductFinalizeResponse(finalizedProductsQueue));
     }
 
-    public OrderFinalizeResponse deleteProductReservation(Order order){
+    public OrderFinalizeResponse deleteProductReservation(Order order) {
         checkIfOrderWasNotFinalizedBefore(order);
-        List<FinalizedOrderQueue> toFinalizeProducts = order.getOrderProducts().stream().map(p -> new FinalizedOrderQueue(order.getOrderId(), new FinalizedProductQueue(p.getProductId(), p.getQuantity(), 0))).toList();
+        List<FinalizedOrderQueue> toFinalizeProducts =
+                order.getOrderProducts().stream()
+                        .map(
+                                p ->
+                                        new FinalizedOrderQueue(
+                                                order.getOrderId(),
+                                                new FinalizedProductQueue(
+                                                        p.getProductId(), p.getQuantity(), 0)))
+                        .toList();
         toFinalizeProducts.forEach(queueWriter::saveProductOnFinalizedProducts);
         return new OrderFinalizeResponse(
                 order.getOrderId(),
@@ -53,7 +61,7 @@ public class FinalizeOrderService {
     }
 
     private void checkIfOrderWasNotFinalizedBefore(Order order) {
-        if(order.getStatus().equals(OrderStatus.FINALIZED)){
+        if (order.getStatus().equals(OrderStatus.FINALIZED)) {
             throw new OrderAlreadyFinalizedException("Order was already finalized");
         }
     }

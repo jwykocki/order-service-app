@@ -3,6 +3,7 @@ package com.jw.constants;
 public interface OrderStatus {
 
     String UNPROCESSED = "UNPROCESSED";
-    String PROCESSED = "PROCESSED";
+    String PARTIALLY_AVAILABLE = "PARTIALLY AVAILABLE";
+    String ALL_AVAILABLE = "ALL AVAILABLE";
     String FINALIZED = "FINALIZED";
 }

@@ -9,6 +9,7 @@ import com.jw.dto.unprocessed.orders.UnprocessedOrderQueue;
 import com.jw.entity.Order;
 import com.jw.entity.OrderProduct;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "cdi")
 public interface OrderMapper {
@@ -24,4 +25,7 @@ public interface OrderMapper {
 
     OrderProductFinalizeResponse toOrderProductFinalizeResponse(
             FinalizedProductQueue finalizedProductQueue);
+
+    @Mapping(source = "orderProducts", target = "products")
+    OrderFinalizeRequest toOrderFinalizeRequest(OrderResponse orderResponse);
 }

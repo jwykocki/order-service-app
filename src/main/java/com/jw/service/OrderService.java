@@ -1,8 +1,8 @@
 package com.jw.service;
 
+import static com.jw.constants.OrderProductStatus.NOT_AVAILABLE;
 import static com.jw.constants.OrderProductStatus.UNKNOWN;
-import static com.jw.constants.OrderStatus.PROCESSED;
-import static com.jw.constants.OrderStatus.UNPROCESSED;
+import static com.jw.constants.OrderStatus.*;
 
 import com.jw.dto.finalize.request.OrderFinalizeResponse;
 import com.jw.dto.request.OrderRequest;
@@ -41,26 +41,47 @@ public class OrderService {
     @Transactional
     public OrderFinalizeResponse deleteOrder(Long id) {
         Order order = getOrderOrElseThrowException(id);
-        OrderFinalizeResponse orderFinalizeResponse = finalizeOrderService.deleteProductReservation(order);
+        OrderFinalizeResponse orderFinalizeResponse =
+                finalizeOrderService.deleteProductReservation(order);
         orderRepository.deleteById(id);
         return orderFinalizeResponse;
     }
 
+    @Transactional
     public OrderResponse getOrderById(Long id) {
         Order order = getOrderOrElseThrowException(id);
         return orderMapper.toOrderResponse(order);
     }
 
     @Transactional
-    public void updateOrderStatus(Long orderId) {
+    public String updateOrderStatusAndReturn(Long orderId) {
         Order order = getOrderOrElseThrowException(orderId);
-        List<OrderProduct> orderProducts1 =
-                order.getOrderProducts().stream()
-                        .filter(orderProduct -> orderProduct.getStatus().equals(UNKNOWN))
-                        .toList();
-        if (orderProducts1.isEmpty()) {
-            order.setStatus(PROCESSED);
+        if (allRequestedProductsAreProcessed(order)) {
+            if (allRequestedProductsAvailable(order)) {
+                order.setStatus(ALL_AVAILABLE);
+                return ALL_AVAILABLE;
+            } else {
+                order.setStatus(PARTIALLY_AVAILABLE);
+                return PARTIALLY_AVAILABLE;
+            }
         }
+        order.setStatus(UNPROCESSED);
+        return UNPROCESSED;
+    }
+
+    private boolean allRequestedProductsAreProcessed(Order order) {
+        return order.getOrderProducts().stream()
+                .filter(orderProduct -> orderProduct.getStatus().equals(UNKNOWN))
+                .toList()
+                .isEmpty();
+    }
+
+    private boolean allRequestedProductsAvailable(Order order) {
+        List<OrderProduct> notAvailable =
+                order.getOrderProducts().stream()
+                        .filter(orderProduct -> orderProduct.getStatus().equals(NOT_AVAILABLE))
+                        .toList();
+        return notAvailable.isEmpty();
     }
 
     @Transactional
