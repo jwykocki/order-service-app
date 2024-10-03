@@ -22,15 +22,15 @@ dependencies {
 	implementation("io.quarkus:quarkus-hibernate-orm-panache")
 	implementation("io.quarkus:quarkus-hibernate-validator")
 	implementation('io.quarkus:quarkus-arc')
-	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-	implementation group: 'io.quarkiverse.pact', name: 'quarkus-pact-provider', version: '1.4.2'
-	implementation( "org.hibernate:hibernate-core:6.0.0.Final")
-	implementation("org.hibernate.orm:hibernate-core:6.0.0.Final")
 	implementation("io.quarkus:quarkus-hibernate-orm:*")
 	implementation("io.quarkus:quarkus-messaging-rabbitmq")
+	implementation group: 'io.quarkiverse.pact', name: 'quarkus-pact-provider', version: '1.4.2'
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	implementation( "org.hibernate:hibernate-core:6.0.0.Final")
+	implementation("org.hibernate.orm:hibernate-core:6.0.0.Final")
+	implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.1.0-alpha1'
 
 	compileOnly 'org.projectlombok:lombok:1.18.32'
-	implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.1.0-alpha1'
 	annotationProcessor 'org.slf4j:slf4j-api:2.1.0-alpha1'
 	annotationProcessor 'org.projectlombok:lombok:1.18.32'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
