@@ -6,4 +6,5 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record OrderRequest(
-        @NotNull Long customerId, @NotEmpty List<@Valid OrderProductRequest> orderProducts) {}
+        @NotNull(message = "customerId cannot be null") Long customerId,
+        @NotEmpty List<@Valid OrderProductRequest> orderProducts) {}
