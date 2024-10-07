@@ -1,7 +1,6 @@
 package com.jw.service;
 
-import static com.jw.constants.OrderProductStatus.NOT_AVAILABLE;
-import static com.jw.constants.OrderProductStatus.UNKNOWN;
+import static com.jw.constants.OrderProductStatus.*;
 import static com.jw.constants.OrderStatus.*;
 
 import com.jw.dto.finalize.request.OrderFinalizeResponse;
@@ -57,7 +56,7 @@ public class OrderService {
     public String updateOrderStatusAndReturn(Long orderId) {
         Order order = getOrderOrElseThrowException(orderId);
         if (allRequestedProductsAreProcessed(order)) {
-            if (allRequestedProductsAvailable(order)) {
+            if (allRequestedProductsReserved(order)) {
                 order.setStatus(ALL_AVAILABLE);
                 return ALL_AVAILABLE;
             } else {
@@ -76,12 +75,12 @@ public class OrderService {
                 .isEmpty();
     }
 
-    private boolean allRequestedProductsAvailable(Order order) {
-        List<OrderProduct> notAvailable =
+    private boolean allRequestedProductsReserved(Order order) {
+        List<OrderProduct> reserved =
                 order.getOrderProducts().stream()
-                        .filter(orderProduct -> orderProduct.getStatus().equals(NOT_AVAILABLE))
+                        .filter(orderProduct -> orderProduct.getStatus().equals(RESERVED))
                         .toList();
-        return notAvailable.isEmpty();
+        return reserved.size() == order.getOrderProducts().size();
     }
 
     @Transactional

@@ -2,7 +2,6 @@ package com.jw.resources;
 
 import com.jw.dto.finalize.request.OrderFinalizeRequest;
 import com.jw.dto.finalize.request.OrderFinalizeResponse;
-import com.jw.dto.response.OrderResponse;
 import com.jw.service.FinalizeOrderService;
 import com.jw.service.OrderService;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,17 +18,6 @@ public class FinalizeOrderResource {
 
     private final OrderService orderService;
     private final FinalizeOrderService finalizeOrderService;
-
-    @GET
-    @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public OrderResponse getOrderByOderId(@PathParam("id") Long id) {
-        log.info("Received get order request (id = {})", id);
-        OrderResponse orderResponse = orderService.getOrderById(id);
-        log.info("Successfully processed get order request (id = {})", id);
-        return orderResponse;
-    }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
