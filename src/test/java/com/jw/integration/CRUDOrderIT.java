@@ -167,7 +167,7 @@ public class CRUDOrderIT {
                 HttpMethod.DELETE,
                 ORDER_ENDPOINT + "/" + orderId,
                 StringUtils.EMPTY,
-                HttpStatus.SC_NO_CONTENT);
+                HttpStatus.SC_OK);
 
         // then
         assertThat(orderRepository.listAll()).isEmpty();
