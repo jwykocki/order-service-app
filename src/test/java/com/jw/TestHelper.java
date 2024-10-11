@@ -1,5 +1,6 @@
 package com.jw;
 
+import static com.jw.constants.OrderStatus.UNPROCESSED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -49,6 +50,7 @@ public class TestHelper {
         List<OrderProduct> orderProducts =
                 orderRequest.orderProducts().stream().map(TestHelper::createOrderProduct).toList();
         return Order.builder()
+                .status(UNPROCESSED)
                 .customerId(orderRequest.customerId())
                 .orderProducts(orderProducts)
                 .build();

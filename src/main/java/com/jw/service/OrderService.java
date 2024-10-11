@@ -1,9 +1,9 @@
 package com.jw.service;
 
-import static com.jw.constants.OrderProductStatus.UNKNOWN;
-import static com.jw.constants.OrderStatus.PROCESSED;
-import static com.jw.constants.OrderStatus.UNPROCESSED;
+import static com.jw.constants.OrderProductStatus.*;
+import static com.jw.constants.OrderStatus.*;
 
+import com.jw.dto.finalize.request.OrderFinalizeResponse;
 import com.jw.dto.request.OrderRequest;
 import com.jw.dto.response.OrderResponse;
 import com.jw.entity.Order;
@@ -23,6 +23,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final QueueWriter queueWriter;
+    private final FinalizeOrderService finalizeOrderService;
 
     @Transactional
     public OrderResponse processOrderRequest(OrderRequest orderRequest) {
@@ -37,27 +38,49 @@ public class OrderService {
     }
 
     @Transactional
-    public void deleteOrder(Long id) {
-        checkIfOrderExistsOrElseThrowException(id);
+    public OrderFinalizeResponse deleteOrder(Long id) {
+        Order order = getOrderOrElseThrowException(id);
+        OrderFinalizeResponse orderFinalizeResponse =
+                finalizeOrderService.deleteProductReservation(order);
         orderRepository.deleteById(id);
+        return orderFinalizeResponse;
     }
 
+    @Transactional
     public OrderResponse getOrderById(Long id) {
-        checkIfOrderExistsOrElseThrowException(id);
-        Order order = orderRepository.findById(id);
-        order.setStatus(updateOrderStatus(order.getOrderProducts()));
+        Order order = getOrderOrElseThrowException(id);
         return orderMapper.toOrderResponse(order);
     }
 
-    private String updateOrderStatus(List<OrderProduct> orderProducts) {
-        List<OrderProduct> orderProducts1 =
-                orderProducts.stream()
-                        .filter(orderProduct -> orderProduct.getStatus().equals("NOT KNOWN"))
-                        .toList();
-        if (orderProducts1.isEmpty()) {
-            return PROCESSED;
+    @Transactional
+    public String updateOrderStatusAndReturn(Long orderId) {
+        Order order = getOrderOrElseThrowException(orderId);
+        if (allRequestedProductsAreProcessed(order)) {
+            if (allRequestedProductsReserved(order)) {
+                order.setStatus(ALL_AVAILABLE);
+                return ALL_AVAILABLE;
+            } else {
+                order.setStatus(PARTIALLY_AVAILABLE);
+                return PARTIALLY_AVAILABLE;
+            }
         }
+        order.setStatus(UNPROCESSED);
         return UNPROCESSED;
+    }
+
+    private boolean allRequestedProductsAreProcessed(Order order) {
+        return order.getOrderProducts().stream()
+                .filter(orderProduct -> orderProduct.getStatus().equals(UNKNOWN))
+                .toList()
+                .isEmpty();
+    }
+
+    private boolean allRequestedProductsReserved(Order order) {
+        List<OrderProduct> reserved =
+                order.getOrderProducts().stream()
+                        .filter(orderProduct -> orderProduct.getStatus().equals(RESERVED))
+                        .toList();
+        return reserved.size() == order.getOrderProducts().size();
     }
 
     @Transactional
@@ -86,6 +109,15 @@ public class OrderService {
 
     private void checkIfOrderExistsOrElseThrowException(Long id) {
         orderRepository
+                .findByIdOptional(id)
+                .orElseThrow(
+                        () ->
+                                new OrderNotFoundException(
+                                        "Order with id = %s was not found".formatted(id)));
+    }
+
+    private Order getOrderOrElseThrowException(Long id) {
+        return orderRepository
                 .findByIdOptional(id)
                 .orElseThrow(
                         () ->

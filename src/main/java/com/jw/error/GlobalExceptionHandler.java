@@ -35,6 +35,14 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                 .build();
     }
 
+    private Response handleOrderAlreadyFinalized(OrderAlreadyFinalizedException exception) {
+        log.error("Order already finalized: {}", exception.getMessage());
+        return Response.status(Response.Status.BAD_REQUEST)
+                .entity(new ErrorResponse(exception.getMessage(), Collections.emptyList()))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
     private Response handleGenericException(Throwable exception) {
         log.error("An error occurred: {}", exception.getMessage());
         log.info(exception.getMessage(), exception);
@@ -52,6 +60,8 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
             return handleOrderNotFoundException((OrderNotFoundException) exception);
         } else if (exception instanceof ReservationFailException) {
             return handleReservationFailException((ReservationFailException) exception);
+        } else if (exception instanceof OrderAlreadyFinalizedException) {
+            return handleOrderAlreadyFinalized((OrderAlreadyFinalizedException) exception);
         } else {
             return handleGenericException(exception);
         }

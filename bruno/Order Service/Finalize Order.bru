@@ -1,0 +1,30 @@
+meta {
+  name: Finalize Order
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8091/finalize/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "orderId": 1,
+      "customerId": 3,
+      "orderProducts": [
+          {
+              "productId": 1,
+              "reserved": 2,
+              "finalize": 2
+          },
+          {
+              "productId": 2,
+              "reserved": 4,
+              "finalize": 2
+          }
+      ]
+  }
+}
