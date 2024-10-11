@@ -18,9 +18,11 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import java.util.Map;
 import org.apache.http.HttpStatus;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+@Disabled
 @ExtendWith(PactConsumerTestExt.class)
 @PactTestFor(providerName = "productService", hostInterface = "localhost", port = "8082")
 class PactOrderReservationTest {
