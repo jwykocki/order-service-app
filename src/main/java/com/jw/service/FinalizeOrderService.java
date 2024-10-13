@@ -1,6 +1,7 @@
 package com.jw.service;
 
-import com.jw.constants.OrderProductStatus;
+import static com.jw.constants.OrderProductStatus.RESERVED;
+
 import com.jw.constants.OrderStatus;
 import com.jw.dto.finalize.request.*;
 import com.jw.entity.Order;
@@ -46,18 +47,27 @@ public class FinalizeOrderService {
         checkIfOrderWasNotFinalizedBefore(order);
         List<FinalizedOrderQueue> toFinalizeProducts =
                 order.getOrderProducts().stream()
+                        .filter(this::wasProductReserved)
                         .map(
-                                p ->
-                                        new FinalizedOrderQueue(
-                                                order.getOrderId(),
-                                                new FinalizedProductQueue(
-                                                        p.getProductId(), p.getQuantity(), 0)))
+                                orderProduct ->
+                                        toEmptyFinalizeOrderQueue(order.getOrderId(), orderProduct))
                         .toList();
         toFinalizeProducts.forEach(queueWriter::saveProductOnFinalizedProducts);
         return new OrderFinalizeResponse(
                 order.getOrderId(),
                 order.getCustomerId(),
                 toOrderProductFinalizeResponse(toFinalizeProducts));
+    }
+
+    private boolean wasProductReserved(OrderProduct orderProduct) {
+        return orderProduct.getStatus().equals(RESERVED);
+    }
+
+    private FinalizedOrderQueue toEmptyFinalizeOrderQueue(Long orderId, OrderProduct orderProduct) {
+        return new FinalizedOrderQueue(
+                orderId,
+                new FinalizedProductQueue(
+                        orderProduct.getProductId(), orderProduct.getQuantity(), 0));
     }
 
     private void checkIfOrderWasNotFinalizedBefore(Order order) {
@@ -88,6 +98,7 @@ public class FinalizeOrderService {
             List<OrderProductFinalizeRequest> toFinalizeProducts,
             List<OrderProduct> reservedProducts) {
         List<FinalizedOrderQueue> finalizedOrdersQueue = new ArrayList<>();
+        System.out.println(toFinalizeProducts);
         toFinalizeProducts.forEach(
                 toFinalizeProduct -> {
                     OrderProduct reservedProduct =
@@ -109,7 +120,7 @@ public class FinalizeOrderService {
             List<OrderProduct> products, Long productId) {
         return products.stream()
                 .filter(p -> p.getProductId().equals(productId))
-                .filter(p -> p.getStatus().equals(OrderProductStatus.RESERVED))
+                .filter(p -> p.getStatus().equals(RESERVED))
                 .findFirst()
                 .orElseThrow(
                         () ->

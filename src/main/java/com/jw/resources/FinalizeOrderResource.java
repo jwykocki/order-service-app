@@ -3,7 +3,6 @@ package com.jw.resources;
 import com.jw.dto.finalize.request.OrderFinalizeRequest;
 import com.jw.dto.finalize.request.OrderFinalizeResponse;
 import com.jw.service.FinalizeOrderService;
-import com.jw.service.OrderService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -16,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FinalizeOrderResource {
 
-    private final OrderService orderService;
     private final FinalizeOrderService finalizeOrderService;
 
     @POST
