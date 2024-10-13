@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 @QuarkusTest
-@QuarkusTestResource(value = CRUDOrderITConfiguration.class)
+@QuarkusTestResource(value = ContainerITConfiguration.class)
 @RequiredArgsConstructor
 public class CRUDOrderIT {
 

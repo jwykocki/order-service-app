@@ -16,6 +16,7 @@ public class ProductService {
 
     @Transactional
     public void updateOrderProductStatus(ProductReservationResult productReservationResult) {
+        // TODO null handling
         OrderProduct product =
                 productRepository.getByOrderIdAndProductIdAndQuantity(
                         productReservationResult.orderId(),
