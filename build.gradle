@@ -29,12 +29,19 @@ dependencies {
 	implementation( "org.hibernate:hibernate-core:6.0.0.Final")
 	implementation("org.hibernate.orm:hibernate-core:6.0.0.Final")
 	implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.1.0-alpha1'
+	implementation 'org.apache.commons:commons-collections4:4.5.0-M2'
+	implementation 'io.quarkus:quarkus-smallrye-reactive-messaging-rabbitmq'
+	implementation 'io.quarkiverse.rabbitmqclient:quarkus-rabbitmq-client:3.2.0'
+
 
 	compileOnly 'org.projectlombok:lombok:1.18.32'
 	annotationProcessor 'org.slf4j:slf4j-api:2.1.0-alpha1'
 	annotationProcessor 'org.projectlombok:lombok:1.18.32'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
+	testImplementation 'io.quarkus:quarkus-junit5'
+	testImplementation 'org.testcontainers:rabbitmq'
+	testImplementation 'org.testcontainers:junit-jupiter:1.20.2'
 	testImplementation 'au.com.dius.pact.consumer:junit5:4.6.11'
 	testImplementation group: 'au.com.dius.pact', name: 'consumer', version: '4.6.11'
 	testImplementation 'io.quarkus:quarkus-junit5'
