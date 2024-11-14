@@ -1,6 +1,7 @@
 # order-service-app
 
 Order service is a solution that exposes API endpoints which together with Product service allow customers create order with products and purchase it.  
+Product Service App repository: https://github.com/jwykocki/product-service-app
 
 ## Content
 **[How to run it](#how-to-run-it)**   
