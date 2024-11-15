@@ -53,6 +53,10 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
     }
 
     @Override
+    //REVIEW-VINI: Is there a way that we can remove all these if-else on this method? Maybe you can try to use
+    // https://javadoc.io/doc/io.quarkus.resteasy.reactive/resteasy-reactive/3.16.3/org/jboss/resteasy/reactive/server/ServerExceptionMapper.html
+    // instead of this method, more details in here https://quarkus.io/guides/rest#exception-mapping
+    // I'm afraid of how much this method can grow in case more exception will be created
     public Response toResponse(Exception exception) {
         if (exception instanceof InvalidOrderRequestException) {
             return handleInvalidOrderRequestException((InvalidOrderRequestException) exception);

@@ -26,6 +26,7 @@ public class Order {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "orderid")
+    //REVIEW-VINI: Why do you need this @OnDelete? Does Cascade and orphanRemoval not enough?
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<OrderProduct> orderProducts;
 }

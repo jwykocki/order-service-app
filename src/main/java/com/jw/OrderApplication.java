@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OrderApplication {
 
     public static void main(String... args) {
+        // REVIEW-VINI.MD: [minor] I think we can remove it, we will have other logs that will let us know that the app started
         log.info("Starting Quarkus.Main");
         Quarkus.run(args);
     }

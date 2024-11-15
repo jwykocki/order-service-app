@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @ApplicationScoped
 @Slf4j
+
+//REVIEW-VINI: minor - Maybe we can move this method to OrderResource?
 public class FinalizeOrderResource {
 
     private final FinalizeOrderService finalizeOrderService;
@@ -21,6 +23,7 @@ public class FinalizeOrderResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public OrderFinalizeResponse finalizeOrder(OrderFinalizeRequest finalizeRequest) {
+        //REVIEW-VINI: Same here for the logs
         log.info("Received finalize order request");
         OrderFinalizeResponse response = finalizeOrderService.finalizeOrder(finalizeRequest);
         log.info(

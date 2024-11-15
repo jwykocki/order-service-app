@@ -68,8 +68,14 @@ public class OrderService {
         return UNPROCESSED;
     }
 
+    //REVIEW-VINI: [Minor] Could we organize to have all private methods after public ones?
+    // I only put as a MINOR because looks like new conventions says that we should put methods based on functionality.
+    // I kind of dont like it, if I need to navigate to your private method to understand what is going one,
+    // then means that the method's name is bad, plus it's weird to see public and private between each other
+    // I'm trying to imagine when we add abstract methods as well :D. BUT again, it's an opinion of a grumpy dev.
     private boolean allRequestedProductsAreProcessed(Order order) {
         return order.getOrderProducts().stream()
+                //REVIEW-VINI: ALWAYS, ALWAYYYSSS Constant first.. Reason: NPE :D
                 .filter(orderProduct -> orderProduct.getStatus().equals(UNKNOWN))
                 .toList()
                 .isEmpty();
@@ -78,6 +84,7 @@ public class OrderService {
     private boolean allRequestedProductsReserved(Order order) {
         List<OrderProduct> reserved =
                 order.getOrderProducts().stream()
+                        //REVIEW-VINI: ALWAYS, ALWAYYYSSS Constant first.. Reason: NPE :D
                         .filter(orderProduct -> orderProduct.getStatus().equals(RESERVED))
                         .toList();
         return reserved.size() == order.getOrderProducts().size();
@@ -86,6 +93,8 @@ public class OrderService {
     @Transactional
     public OrderResponse processUpdateOrder(Long orderId, OrderRequest orderRequest) {
         checkIfOrderExistsOrElseThrowException(orderId);
+
+        //REVIEW-VINI:
         Order order = orderMapper.toOrder(orderRequest);
         order.setOrderId(orderId);
         String status = orderRepository.findById(orderId).getStatus();
@@ -101,6 +110,7 @@ public class OrderService {
 
     private Order createOrderInDatabase(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
+        //REVIEW-VINI: ALWAYS, ALWAYYYSSS Constant first.. Reason: NPE :D
         order.getOrderProducts().forEach(p -> p.setStatus(UNKNOWN));
         order.setStatus(UNPROCESSED);
         orderRepository.persist(order);

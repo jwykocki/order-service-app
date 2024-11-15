@@ -18,6 +18,8 @@ public class OrderProduct {
     @ManyToOne
     @JoinColumn(name = "orderid")
     @OnDelete(action = OnDeleteAction.CASCADE)
+    //REVIEW-VINI: please add the private scope here, and move it under Id, as a good practice always keep the ID field at the
+    // first to improve the readability of this entity. Thanks to it I can quickly see what I have as an ID
     Order order;
 
     @Id
