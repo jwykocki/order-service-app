@@ -28,6 +28,8 @@ First of all, these repositories need to be downloaded:
 Next, in order-service-app run docker-compose.yml file using  
 `docker compose up` command. This will start order and product databases and creates tables for them.
 
+// REVIEW-VINI: Please add it on your docker compose file, it'll be easier to start all the infra at once
+
 To start RabbitMQ queue, this command can be used:  
 `docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.13-management`
 
@@ -38,8 +40,10 @@ Next, create queues:
 `finalized-products`  
 `update-products`
 
-Create exchanges:  
+// REVIEW-VINI: Maybe add these steps as title, like: 
+### Create exchanges:
 
+// REVIEW-VINI: Do we need to create a bind for this queue?
 `unprocessed-orders` type: **topic**  
 
 `unprocessed-products` type: **topic**  
@@ -58,8 +62,11 @@ Further steps are described more in Workflow section.
 
 ## Workflow
 
+
+// REVIEW-VINI: This image is broken on my machine, you can try to use mermaid to create diagrams - Potential fix is: architecture/Order%20flow.jpg 
+
 ### Diagram
-![img.png](https://github.com/jwykocki/order-service-app/blob/main/architecture/Order%20flow.jpg)
+![img.png](architecture/Order%20flow.jpg)
 
 ### Creating an order  
 HTTP method: `POST`  
@@ -224,8 +231,10 @@ Body: empty
 **Response**  
 `Stock file read successfully`
 
+// REVIEW-VINI: Same here: potential fix is: architecture/Update%20stock.jpg
+
 #### Diagram:
-![img.png](https://github.com/jwykocki/order-service-app/blob/main/architecture/Update%20stock.jpg)
+![img.png](architecture/Update%20stock.jpg)
 
 ### Error handling
 In case of any error during order-service and product-service work, the error response is returned with proper HTTP status code.

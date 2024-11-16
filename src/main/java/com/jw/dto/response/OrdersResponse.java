@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Setter
+//REVIEW-VINI: Why do we need this class? could we return a list of OrderResponse?
 public class OrdersResponse {
     List<OrderResponse> orders;
 }

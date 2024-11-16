@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @ApplicationScoped
 @Slf4j
+//REVIEW-VINI: I liked this class a lot, pretty simple how a controller should be :)
 public class OrderResource {
 
     private final OrderService orderService;
@@ -24,9 +25,12 @@ public class OrderResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public OrdersResponse getAllOrders() {
+        //REVIEW-VINI: We can change these logs to debug, small explanation why - this is my opinion :) -: nowadays most of the companies/services has a good metrics and trace for our services
+        // which make un-necessary such logs to check if a request was received/process or not, plus in case your app is high demand then these logs can be a bit of noise.
         log.info("Received get all orders request");
         OrdersResponse ordersResponse = new OrdersResponse(orderService.getAllOrders());
         log.info("Successfully processed get all orders request");
+        //REVIEW-VINI: Once you fix the logs here, maybe we can inline all these service calls? For instance: return new OrdersResponse(orderService.getAllOrders());
         return ordersResponse;
     }
 
@@ -53,6 +57,7 @@ public class OrderResource {
 
     @DELETE
     @Path("/{id}")
+    //REVIEW-VINI: Should this method be present on FinalizeOrderResource? IMHO delete order is also a way to finalize an order
     public OrderFinalizeResponse deleteOrder(@PathParam("id") Long id) {
         log.info("Received delete order request (id = {})", id);
         OrderFinalizeResponse orderFinalizeResponse = orderService.deleteOrder(id);

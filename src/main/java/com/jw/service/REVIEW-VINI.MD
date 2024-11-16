@@ -1,0 +1,2 @@
+Few comments:
+- This package contains services, repositories and mappers, please split it accordingly. Same for Queue*, I would add it into a new package called infrastructure(but these classes are minor, it can(maybe) fit in here) 

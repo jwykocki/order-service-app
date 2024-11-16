@@ -15,7 +15,9 @@ public class ProductRepository implements PanacheRepository<OrderProduct> {
         params.put("order", orderId);
         params.put("productId", productId);
         params.put("quantity", quantity);
+        //REVIEW-VINI: Please search only by productId and Order, you should have only one of the same product on the same order, plu quantity it's a mutable value.
         return find("productId = :productId and quantity = :quantity and order.id = :order", params)
+                //REVIEW-VINI: Return as Optional
                 .firstResult();
     }
 }

@@ -1,5 +1,6 @@
 package com.jw.constants;
 
+//REVIEW-VINI: Maybe
 public interface OrderProductStatus {
 
     String UNKNOWN = "UNKNOWN";

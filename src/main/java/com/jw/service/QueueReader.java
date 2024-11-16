@@ -27,6 +27,7 @@ public class QueueReader {
 
     @Incoming("unprocessed-orders")
     public void readUnprocessedOrders(UnprocessedOrderQueue order) {
+        //REVIEW-VINI: change to debug
         log.info("Received order from unprocessed-orders queue (id = {})", order.orderId());
         List<UnprocessedProductQueue> unprocessedProducts =
                 order.orderProducts().stream()
@@ -40,15 +41,21 @@ public class QueueReader {
         String value = new String(product, StandardCharsets.UTF_8);
         ProductReservationResult reservationResult =
                 orderProductMapper.toProductReservationResult(value);
+        //REVIEW-VINI: change to debug
         log.info(
                 "Received reservation result from processed-products queue (id = {})",
                 reservationResult.orderId());
         productService.updateOrderProductStatus(reservationResult);
         String status = orderService.updateOrderStatusAndReturn(reservationResult.orderId());
+        //REVIEW-VINI: ALWAYS, ALWAAAAYS constant first :)
         if (status.equals(ALL_AVAILABLE)) {
+            //REVIEW-VINI: change to debug
             log.info(
                     "All products are available, finalizing order (id = {})",
                     reservationResult.orderId());
+            //REVIEW-VINI: My proposition here is to use the repository instead of the service,
+            // it'll reduce the amount of objects that you are using: Order -> OrderFinalizeRequest,
+            // currently you have , Order -> OrderResponse -> OrderFinalizeRequest.
             OrderResponse orderResponse = orderService.getOrderById(reservationResult.orderId());
             finalizeOrderService.finalizeOrder(
                     orderProductMapper.getFinalizeRequestFromOrderResponse(orderResponse));

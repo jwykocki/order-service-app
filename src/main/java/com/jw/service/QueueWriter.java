@@ -26,16 +26,19 @@ public class QueueWriter {
     Emitter<FinalizedOrderQueue> finalizedProductsEmitter;
 
     public void saveOrderOnUnprocessedOrders(UnprocessedOrderQueue order) {
+        //REVIEW-VINI: change to debug
         log.info("Saving order on unprocessed-orders queue (id = {})", order.orderId());
         unprocessedOrdersEmitter.send(order);
     }
 
     public void saveProductOnUnprocessedProducts(UnprocessedProductQueue product) {
+        //REVIEW-VINI: change to debug
         log.info("Saving product on unprocessed-products (id = {})", product.orderId());
         unprocessedProductsEmitter.send(product);
     }
 
     public void saveProductOnFinalizedProducts(FinalizedOrderQueue product) {
+        //REVIEW-VINI: change to debug
         log.info("Saving product on finalized-products (id = {})", product.orderId());
         finalizedProductsEmitter.send(product);
     }
