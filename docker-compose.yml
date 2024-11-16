@@ -25,7 +25,15 @@ services:
       - "33002:5432"
     volumes:
     - ./sql/init-orders.sql:/docker-entrypoint-initdb.d/init-orders.sql
-volumes:
-  postgres_data:
+
+  rabbit-mq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    stdin_open: true
+    tty: true
+
 
 

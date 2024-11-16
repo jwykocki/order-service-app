@@ -59,7 +59,7 @@ Further steps are described more in Workflow section.
 ## Workflow
 
 ### Diagram
-![img.png](https://github.com/jwykocki/order-service-app/blob/main/architecture/Order%20flow.jpg)
+![img.png](/architecture/Order%20flow.jpg)
 
 ### Creating an order  
 HTTP method: `POST`  
@@ -225,7 +225,7 @@ Body: empty
 `Stock file read successfully`
 
 #### Diagram:
-![img.png](https://github.com/jwykocki/order-service-app/blob/main/architecture/Update%20stock.jpg)
+![img.png](/architecture/Update%20stock.jpg)
 
 ### Error handling
 In case of any error during order-service and product-service work, the error response is returned with proper HTTP status code.
