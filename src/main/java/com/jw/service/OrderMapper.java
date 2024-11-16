@@ -17,6 +17,7 @@ public interface OrderMapper {
 
     OrderResponse toOrderResponse(Order order);
 
+    //REVIEW-VINI: Looks like it's never used, we can remove it
     ProductReservationRequest toProductReservationRequest(Order order);
 
     UnprocessedOrderQueue toUnprocessedOrderQueue(Order order);
@@ -26,6 +27,7 @@ public interface OrderMapper {
     OrderProductFinalizeResponse toOrderProductFinalizeResponse(
             FinalizedProductQueue finalizedProductQueue);
 
+    //REVIEW-VINI: Looks like it's never used, we can remove it
     @Mapping(source = "orderProducts", target = "products")
     OrderFinalizeRequest toOrderFinalizeRequest(OrderResponse orderResponse);
 }

@@ -84,7 +84,7 @@ public class OrderService {
     private boolean allRequestedProductsReserved(Order order) {
         List<OrderProduct> reserved =
                 order.getOrderProducts().stream()
-                        //REVIEW-VINI: ALWAYS, ALWAYYYSSS Constant first.. Reason: NPE :D
+                        //REVIEW-VINI: ALWAYS, ALWAYYYSSS Constant first.. Reason: Potential NPE :D
                         .filter(orderProduct -> orderProduct.getStatus().equals(RESERVED))
                         .toList();
         return reserved.size() == order.getOrderProducts().size();
@@ -92,9 +92,18 @@ public class OrderService {
 
     @Transactional
     public OrderResponse processUpdateOrder(Long orderId, OrderRequest orderRequest) {
+        //REVIEW-VINI: Please add the @NotNull from beans validation on controller
         checkIfOrderExistsOrElseThrowException(orderId);
 
-        //REVIEW-VINI:
+        //REVIEW-VINI: What is the goal of this method? I'm a bit confused on it, you are fetching the order status, and set it again on the same order?
+        // If you are planning to update the products, then considering that you are into a Transactional method, you dont need to
+        // use the merge in here. It should commit in the end of the method automatically all the entities that are on the session.
+        // Alos, in case the products you can do the following:
+        // 1. Load the Order by if
+        // 2. On your OrderMapper do an erich method that will only change the data that you want to
+        // 3. Parse this entity to the order response.
+        // 4. Done -> it'll be much more simple and readable
+
         Order order = orderMapper.toOrder(orderRequest);
         order.setOrderId(orderId);
         String status = orderRepository.findById(orderId).getStatus();
@@ -110,9 +119,10 @@ public class OrderService {
 
     private Order createOrderInDatabase(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
-        //REVIEW-VINI: ALWAYS, ALWAYYYSSS Constant first.. Reason: NPE :D
+        //REVIEW-VINI: ALWAYS, ALWAYYYSSS Constant first.. Reason: Potential NPE :D
         order.getOrderProducts().forEach(p -> p.setStatus(UNKNOWN));
         order.setStatus(UNPROCESSED);
+        //REVIEW-VINI: return orderRepository.persist(order);
         orderRepository.persist(order);
         return order;
     }
