@@ -2,13 +2,14 @@ package com.jw.service;
 
 import static com.jw.constants.OrderProductStatus.*;
 import static com.jw.constants.OrderStatus.*;
+import static com.jw.exception.ExceptionMessages.ORDER_NOT_FOUND_MESSAGE;
 
 import com.jw.dto.finalize.request.OrderFinalizeResponse;
 import com.jw.dto.request.OrderRequest;
 import com.jw.dto.response.OrderResponse;
 import com.jw.entity.Order;
 import com.jw.entity.OrderProduct;
-import com.jw.error.OrderNotFoundException;
+import com.jw.exception.OrderNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -111,17 +112,13 @@ public class OrderService {
         orderRepository
                 .findByIdOptional(id)
                 .orElseThrow(
-                        () ->
-                                new OrderNotFoundException(
-                                        "Order with id = %s was not found".formatted(id)));
+                        () -> new OrderNotFoundException(ORDER_NOT_FOUND_MESSAGE.formatted(id)));
     }
 
     private Order getOrderOrElseThrowException(Long id) {
         return orderRepository
                 .findByIdOptional(id)
                 .orElseThrow(
-                        () ->
-                                new OrderNotFoundException(
-                                        "Order with id = %s was not found".formatted(id)));
+                        () -> new OrderNotFoundException(ORDER_NOT_FOUND_MESSAGE.formatted(id)));
     }
 }
