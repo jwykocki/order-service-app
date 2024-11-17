@@ -15,15 +15,15 @@ import org.hibernate.annotations.OnDeleteAction;
 @ToString
 public class OrderProduct {
 
-    @ManyToOne
-    @JoinColumn(name = "orderid")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    Order order;
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_generator")
     @SequenceGenerator(name = "product_generator", sequenceName = "product_seq", allocationSize = 1)
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "orderid")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Order order;
 
     private Long productId;
     private int quantity;

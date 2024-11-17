@@ -1,17 +1,18 @@
 package com.jw.error;
 
+import jakarta.validation.ValidationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.ext.ExceptionMapper;
-import jakarta.ws.rs.ext.Provider;
 import java.util.Collections;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
-@Provider
 @Slf4j
-public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
+public class GlobalExceptionHandler {
 
-    private Response handleInvalidOrderRequestException(InvalidOrderRequestException exception) {
+    @ServerExceptionMapper
+    public Response handleInvalidOrderRequestException(InvalidOrderRequestException exception) {
         log.error("Invalid order request: {}", exception.getMessage());
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse(exception.getMessage(), exception.getViolations()))
@@ -19,7 +20,19 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                 .build();
     }
 
-    private Response handleReservationFailException(ReservationFailException exception) {
+    @ServerExceptionMapper
+    public Response handleValidationException(ValidationException exception) {
+        log.error("Validation failed: {}", exception.getMessage());
+        return Response.status(Response.Status.BAD_REQUEST)
+                .entity(
+                        new ErrorResponse(
+                                "Request body is not valid", List.of((exception.getMessage()))))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @ServerExceptionMapper
+    public Response handleReservationFailException(ReservationFailException exception) {
         log.error("Reservation failed: {}", exception.getMessage());
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse(exception.getMessage(), Collections.emptyList()))
@@ -27,7 +40,8 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                 .build();
     }
 
-    private Response handleOrderNotFoundException(OrderNotFoundException exception) {
+    @ServerExceptionMapper
+    public Response handleOrderNotFoundException(OrderNotFoundException exception) {
         log.error("Order not found: {}", exception.getMessage());
         return Response.status(Response.Status.NOT_FOUND)
                 .entity(new ErrorResponse(exception.getMessage(), Collections.emptyList()))
@@ -35,7 +49,8 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                 .build();
     }
 
-    private Response handleOrderAlreadyFinalized(OrderAlreadyFinalizedException exception) {
+    @ServerExceptionMapper
+    public Response handleOrderAlreadyFinalized(OrderAlreadyFinalizedException exception) {
         log.error("Order already finalized: {}", exception.getMessage());
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse(exception.getMessage(), Collections.emptyList()))
@@ -43,27 +58,13 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                 .build();
     }
 
-    private Response handleGenericException(Throwable exception) {
+    @ServerExceptionMapper
+    public Response handleGenericException(Throwable exception) {
         log.error("An error occurred: {}", exception.getMessage());
         log.info(exception.getMessage(), exception);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(new ErrorResponse("An error occurred", Collections.emptyList()))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
-    }
-
-    @Override
-    public Response toResponse(Exception exception) {
-        if (exception instanceof InvalidOrderRequestException) {
-            return handleInvalidOrderRequestException((InvalidOrderRequestException) exception);
-        } else if (exception instanceof OrderNotFoundException) {
-            return handleOrderNotFoundException((OrderNotFoundException) exception);
-        } else if (exception instanceof ReservationFailException) {
-            return handleReservationFailException((ReservationFailException) exception);
-        } else if (exception instanceof OrderAlreadyFinalizedException) {
-            return handleOrderAlreadyFinalized((OrderAlreadyFinalizedException) exception);
-        } else {
-            return handleGenericException(exception);
-        }
     }
 }
