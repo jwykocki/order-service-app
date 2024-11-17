@@ -3,12 +3,12 @@ package com.jw.resources;
 import com.jw.dto.finalize.request.OrderFinalizeResponse;
 import com.jw.dto.request.OrderRequest;
 import com.jw.dto.response.OrderResponse;
-import com.jw.dto.response.OrdersResponse;
 import com.jw.service.OrderService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,11 +23,11 @@ public class OrderResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public OrdersResponse getAllOrders() {
+    public List<OrderResponse> getAllOrders() {
         log.info("Received get all orders request");
-        OrdersResponse ordersResponse = new OrdersResponse(orderService.getAllOrders());
+        List<OrderResponse> orders = orderService.getAllOrders();
         log.info("Successfully processed get all orders request");
-        return ordersResponse;
+        return orders;
     }
 
     @GET

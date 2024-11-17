@@ -10,13 +10,13 @@ import static org.mockito.Mockito.*;
 
 import com.jw.dto.request.OrderRequest;
 import com.jw.dto.response.OrderResponse;
-import com.jw.dto.response.OrdersResponse;
 import com.jw.entity.Order;
 import com.jw.service.OrderRepository;
 import com.jw.service.QueueWriter;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.common.mapper.TypeRef;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.HttpMethod;
 import java.util.List;
@@ -89,13 +89,12 @@ public class CRUDOrderIT {
         assertThat(orderRepository.listAll()).hasSize(2);
 
         // when
-        OrdersResponse ordersResponse =
+        List<OrderResponse> orders =
                 callEndpointAndAssertStatusCodeAndReturn(
                                 HttpMethod.GET, ORDER_ENDPOINT, StringUtils.EMPTY, HttpStatus.SC_OK)
-                        .as(OrdersResponse.class);
+                        .as(new TypeRef<>() {});
 
         // then
-        List<OrderResponse> orders = ordersResponse.getOrders();
         assertThat(orders).hasSize(2);
         assertCorrectOrdersResponse(List.of(order1, order2), orders);
     }
