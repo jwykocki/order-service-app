@@ -11,7 +11,7 @@ import static org.mockito.Mockito.*;
 import com.jw.dto.request.OrderRequest;
 import com.jw.dto.response.OrderResponse;
 import com.jw.entity.Order;
-import com.jw.service.OrderRepository;
+import com.jw.repository.OrderRepository;
 import com.jw.service.QueueWriter;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.QuarkusTestResource;

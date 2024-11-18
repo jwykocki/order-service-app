@@ -23,6 +23,7 @@ import com.jw.dto.unprocessed.orders.OrderProductQueue;
 import com.jw.dto.unprocessed.orders.UnprocessedOrderQueue;
 import com.jw.dto.unprocessed.products.UnprocessedProductQueue;
 import com.jw.entity.Order;
+import com.jw.mapper.OrderProductMapper;
 import com.jw.service.*;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -103,11 +104,13 @@ public class ReservationProcessIT {
         assertProperOrderResponse(
                 orderResponse,
                 OrderStatus.UNPROCESSED.name(),
-                testProductsWithStatuses(UNKNOWN, UNKNOWN));
+                testProductsWithStatuses(UNKNOWN.name(), UNKNOWN.name()));
 
         Order order = assertOneOrderInDatabaseAndReturn(TEST_CUSTOMER_ID_1);
         assertProperOrder(
-                order, OrderStatus.UNPROCESSED.name(), testProductsWithStatuses(UNKNOWN, UNKNOWN));
+                order,
+                OrderStatus.UNPROCESSED.name(),
+                testProductsWithStatuses(UNKNOWN.name(), UNKNOWN.name()));
 
         verify(queueWriter, times(1))
                 .saveOrderOnUnprocessedOrders(any(UnprocessedOrderQueue.class));
@@ -146,10 +149,10 @@ public class ReservationProcessIT {
         // when
         queueTestHelper.sentToProcessedProducts(
                 new ProductReservationResult(
-                        TEST_ORDER_ID, new OrderProductQueue(1L, 2), RESERVED));
+                        TEST_ORDER_ID, new OrderProductQueue(1L, 2), RESERVED.name()));
         queueTestHelper.sentToProcessedProducts(
                 new ProductReservationResult(
-                        TEST_ORDER_ID, new OrderProductQueue(2L, 4), RESERVED));
+                        TEST_ORDER_ID, new OrderProductQueue(2L, 4), RESERVED.name()));
 
         // then
         Awaitility.await()
@@ -163,7 +166,8 @@ public class ReservationProcessIT {
                             allValues.stream()
                                     .map(b -> new String(b, StandardCharsets.UTF_8))
                                     .map(s -> orderProductMapper.toProductReservationResult(s))
-                                    .forEach(p -> assertThat(p.status()).isEqualTo(RESERVED));
+                                    .forEach(
+                                            p -> assertThat(p.status()).isEqualTo(RESERVED.name()));
                         });
 
         verify(orderService, times(2)).updateOrderStatusAndReturn(TEST_ORDER_ID);
@@ -199,10 +203,10 @@ public class ReservationProcessIT {
 
         queueTestHelper.sentToProcessedProducts(
                 new ProductReservationResult(
-                        TEST_ORDER_ID, new OrderProductQueue(1L, 2), RESERVED));
+                        TEST_ORDER_ID, new OrderProductQueue(1L, 2), RESERVED.name()));
         queueTestHelper.sentToProcessedProducts(
                 new ProductReservationResult(
-                        TEST_ORDER_ID, new OrderProductQueue(2L, 4), NOT_AVAILABLE));
+                        TEST_ORDER_ID, new OrderProductQueue(2L, 4), NOT_AVAILABLE.name()));
 
         Awaitility.await()
                 .atMost(10, TimeUnit.SECONDS)
@@ -222,7 +226,7 @@ public class ReservationProcessIT {
         assertProperOrder(
                 order,
                 OrderStatus.PARTIALLY_AVAILABLE.name(),
-                testProductsWithStatuses(RESERVED, NOT_AVAILABLE));
+                testProductsWithStatuses(RESERVED.name(), NOT_AVAILABLE.name()));
 
         OrderFinalizeRequest orderFinalizeRequest =
                 new OrderFinalizeRequest(
@@ -255,7 +259,7 @@ public class ReservationProcessIT {
         assertProperOrder(
                 order2,
                 FINALIZED.name(),
-                testProductsWithStatuses(OrderStatus.FINALIZED.name(), NOT_AVAILABLE));
+                testProductsWithStatuses(OrderStatus.FINALIZED.name(), NOT_AVAILABLE.name()));
     }
 
     private void assertNoRowsWithCustomerId(Long customerId) {
@@ -282,6 +286,8 @@ public class ReservationProcessIT {
     private void assertOneProperOrderInDatabase(Long customerId) {
         Order order = assertOneOrderInDatabaseAndReturn(customerId);
         assertProperOrder(
-                order, OrderStatus.UNPROCESSED.name(), testProductsWithStatuses(UNKNOWN, UNKNOWN));
+                order,
+                OrderStatus.UNPROCESSED.name(),
+                testProductsWithStatuses(UNKNOWN.name(), UNKNOWN.name()));
     }
 }

@@ -6,6 +6,7 @@ import com.jw.dto.response.OrderResponse;
 import com.jw.service.OrderService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
@@ -34,7 +35,7 @@ public class OrderResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public OrderResponse getOrderByOderId(@PathParam("id") Long id) {
+    public OrderResponse getOrderByOderId(@PathParam("id") @NotNull Long id) {
         log.info("Received get order request (id = {})", id);
         OrderResponse orderResponse = orderService.getOrderById(id);
         log.info("Successfully processed get order request (id = {})", id);
@@ -53,7 +54,7 @@ public class OrderResource {
 
     @DELETE
     @Path("/{id}")
-    public OrderFinalizeResponse deleteOrder(@PathParam("id") Long id) {
+    public OrderFinalizeResponse deleteOrder(@PathParam("id") @NotNull Long id) {
         log.info("Received delete order request (id = {})", id);
         OrderFinalizeResponse orderFinalizeResponse = orderService.deleteOrder(id);
         log.info("Successfully processed delete order request (id = {})", id);
@@ -64,7 +65,8 @@ public class OrderResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public OrderResponse updateOrder(@PathParam("id") Long id, OrderRequest orderRequest) {
+    public OrderResponse updateOrder(
+            @PathParam("id") @NotNull Long id, @Valid OrderRequest orderRequest) {
         log.info("Received update order request (id = {})", id);
         OrderResponse orderResponse = orderService.processUpdateOrder(id, orderRequest);
         log.info("Sucessfully processed update order request (id = {})", id);

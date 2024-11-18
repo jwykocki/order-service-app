@@ -1,10 +1,10 @@
-package com.jw.service;
+package com.jw.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jw.dto.finalize.request.OrderFinalizeRequest;
 import com.jw.dto.finalize.request.OrderProductFinalizeRequest;
 import com.jw.dto.processed.ProductReservationResult;
-import com.jw.dto.response.OrderResponse;
+import com.jw.entity.Order;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +20,15 @@ public class OrderProductMapper {
         return (ProductReservationResult) jsonToObject(json, ProductReservationResult.class);
     }
 
-    public OrderFinalizeRequest getFinalizeRequestFromOrderResponse(OrderResponse orderResponse) {
+    public OrderFinalizeRequest getFinalizeRequestFromOrder(Order order) {
         List<OrderProductFinalizeRequest> products =
-                orderResponse.orderProducts().stream()
-                        .map(p -> new OrderProductFinalizeRequest(p.productId(), p.quantity()))
+                order.getOrderProducts().stream()
+                        .map(
+                                p ->
+                                        new OrderProductFinalizeRequest(
+                                                p.getProductId(), p.getQuantity()))
                         .toList();
-        return new OrderFinalizeRequest(
-                orderResponse.orderId(), orderResponse.customerId(), products);
+        return new OrderFinalizeRequest(order.getOrderId(), order.getCustomerId(), products);
     }
 
     @SneakyThrows

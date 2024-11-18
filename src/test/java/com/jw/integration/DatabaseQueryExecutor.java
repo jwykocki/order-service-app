@@ -96,7 +96,7 @@ public class DatabaseQueryExecutor {
                     orderStatement.setLong(2, orderId);
                     orderStatement.setLong(3, orderProductRequest.productId());
                     orderStatement.setInt(4, orderProductRequest.quantity());
-                    orderStatement.setString(5, OrderProductStatus.UNKNOWN);
+                    orderStatement.setString(5, OrderProductStatus.UNKNOWN.name());
                     orderStatement.executeUpdate();
                 }
             }

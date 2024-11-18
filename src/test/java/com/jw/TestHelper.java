@@ -77,7 +77,7 @@ public class TestHelper {
 
     private static OrderProduct createOrderProduct(OrderProductRequest orderProductRequest) {
         return OrderProduct.builder()
-                .status(OrderProductStatus.RESERVED)
+                .status(OrderProductStatus.RESERVED.name())
                 .productId(orderProductRequest.productId())
                 .quantity(orderProductRequest.quantity())
                 .build();

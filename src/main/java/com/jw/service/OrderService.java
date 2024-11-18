@@ -1,7 +1,6 @@
 package com.jw.service;
 
 import static com.jw.constants.OrderProductStatus.*;
-import static com.jw.constants.OrderStatus.*;
 import static com.jw.exception.ExceptionMessages.ORDER_NOT_FOUND_MESSAGE;
 
 import com.jw.constants.OrderStatus;
@@ -11,6 +10,8 @@ import com.jw.dto.response.OrderResponse;
 import com.jw.entity.Order;
 import com.jw.entity.OrderProduct;
 import com.jw.exception.OrderNotFoundException;
+import com.jw.mapper.OrderMapper;
+import com.jw.repository.OrderRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -70,9 +71,16 @@ public class OrderService {
         return OrderStatus.UNPROCESSED.name();
     }
 
+    @Transactional
+    public OrderResponse processUpdateOrder(Long orderId, OrderRequest orderRequest) {
+        Order order = getOrderOrElseThrowException(orderId);
+        orderMapper.update(order, orderRequest);
+        return orderMapper.toOrderResponse(order);
+    }
+
     private boolean allRequestedProductsAreProcessed(Order order) {
         return order.getOrderProducts().stream()
-                .filter(orderProduct -> orderProduct.getStatus().equals(UNKNOWN))
+                .filter(orderProduct -> UNKNOWN.name().equals(orderProduct.getStatus()))
                 .toList()
                 .isEmpty();
     }
@@ -80,40 +88,17 @@ public class OrderService {
     private boolean allRequestedProductsReserved(Order order) {
         List<OrderProduct> reserved =
                 order.getOrderProducts().stream()
-                        .filter(orderProduct -> orderProduct.getStatus().equals(RESERVED))
+                        .filter(orderProduct -> RESERVED.name().equals(orderProduct.getStatus()))
                         .toList();
         return reserved.size() == order.getOrderProducts().size();
     }
 
-    @Transactional
-    public OrderResponse processUpdateOrder(Long orderId, OrderRequest orderRequest) {
-        checkIfOrderExistsOrElseThrowException(orderId);
-        Order order = orderMapper.toOrder(orderRequest);
-        order.setOrderId(orderId);
-        String status = orderRepository.findById(orderId).getStatus();
-        order.setStatus(status);
-        Order updatedOrder = updateOrder(order);
-        return orderMapper.toOrderResponse(updatedOrder);
-    }
-
-    private Order updateOrder(Order order) {
-        orderRepository.getEntityManager().merge(order);
-        return order;
-    }
-
     private Order createOrderInDatabase(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
-        order.getOrderProducts().forEach(p -> p.setStatus(UNKNOWN));
+        order.getOrderProducts().forEach(p -> p.setStatus(UNKNOWN.name()));
         order.setStatus(OrderStatus.UNPROCESSED.name());
         orderRepository.persist(order);
         return order;
-    }
-
-    private void checkIfOrderExistsOrElseThrowException(Long id) {
-        orderRepository
-                .findByIdOptional(id)
-                .orElseThrow(
-                        () -> new OrderNotFoundException(ORDER_NOT_FOUND_MESSAGE.formatted(id)));
     }
 
     private Order getOrderOrElseThrowException(Long id) {

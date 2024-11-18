@@ -9,6 +9,8 @@ import com.jw.entity.Order;
 import com.jw.entity.OrderProduct;
 import com.jw.exception.BadOrderRequestException;
 import com.jw.exception.OrderNotFoundException;
+import com.jw.mapper.OrderMapper;
+import com.jw.repository.OrderRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
@@ -70,7 +72,7 @@ public class FinalizeOrderService {
     }
 
     private void checkIfOrderWasNotFinalizedBefore(Order order) {
-        if (order.getStatus().equals(OrderStatus.FINALIZED)) {
+        if (OrderStatus.FINALIZED.name().equals(order.getStatus())) {
             throw new BadOrderRequestException(
                     ORDER_ALREADY_FINALIZED_MESSAGE.formatted(order.getOrderId()));
         }
@@ -119,7 +121,7 @@ public class FinalizeOrderService {
             List<OrderProduct> products, Long productId) {
         return products.stream()
                 .filter(p -> p.getProductId().equals(productId))
-                .filter(p -> p.getStatus().equals(RESERVED))
+                .filter(p -> RESERVED.name().equals(p.getStatus()))
                 .findFirst()
                 .orElseThrow(
                         () ->
