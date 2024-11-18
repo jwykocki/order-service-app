@@ -1,7 +1,6 @@
 package com.jw.service;
 
-import static com.jw.constants.OrderStatus.ALL_AVAILABLE;
-
+import com.jw.constants.OrderStatus;
 import com.jw.dto.processed.ProductReservationResult;
 import com.jw.dto.response.OrderResponse;
 import com.jw.dto.unprocessed.orders.UnprocessedOrderQueue;
@@ -45,7 +44,7 @@ public class QueueReader {
                 reservationResult.orderId());
         productService.updateOrderProductStatus(reservationResult);
         String status = orderService.updateOrderStatusAndReturn(reservationResult.orderId());
-        if (status.equals(ALL_AVAILABLE)) {
+        if (status.equals(OrderStatus.ALL_AVAILABLE.name())) {
             log.info(
                     "All products are available, finalizing order (id = {})",
                     reservationResult.orderId());

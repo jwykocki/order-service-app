@@ -4,6 +4,7 @@ import static com.jw.constants.OrderProductStatus.*;
 import static com.jw.constants.OrderStatus.*;
 import static com.jw.exception.ExceptionMessages.ORDER_NOT_FOUND_MESSAGE;
 
+import com.jw.constants.OrderStatus;
 import com.jw.dto.finalize.request.OrderFinalizeResponse;
 import com.jw.dto.request.OrderRequest;
 import com.jw.dto.response.OrderResponse;
@@ -58,15 +59,15 @@ public class OrderService {
         Order order = getOrderOrElseThrowException(orderId);
         if (allRequestedProductsAreProcessed(order)) {
             if (allRequestedProductsReserved(order)) {
-                order.setStatus(ALL_AVAILABLE);
-                return ALL_AVAILABLE;
+                order.setStatus(OrderStatus.ALL_AVAILABLE.name());
+                return OrderStatus.ALL_AVAILABLE.name();
             } else {
-                order.setStatus(PARTIALLY_AVAILABLE);
-                return PARTIALLY_AVAILABLE;
+                order.setStatus(OrderStatus.PARTIALLY_AVAILABLE.name());
+                return OrderStatus.PARTIALLY_AVAILABLE.name();
             }
         }
-        order.setStatus(UNPROCESSED);
-        return UNPROCESSED;
+        order.setStatus(OrderStatus.UNPROCESSED.name());
+        return OrderStatus.UNPROCESSED.name();
     }
 
     private boolean allRequestedProductsAreProcessed(Order order) {
@@ -103,7 +104,7 @@ public class OrderService {
     private Order createOrderInDatabase(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
         order.getOrderProducts().forEach(p -> p.setStatus(UNKNOWN));
-        order.setStatus(UNPROCESSED);
+        order.setStatus(OrderStatus.UNPROCESSED.name());
         orderRepository.persist(order);
         return order;
     }

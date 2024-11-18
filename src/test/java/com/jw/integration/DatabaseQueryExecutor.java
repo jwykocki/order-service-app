@@ -1,8 +1,7 @@
 package com.jw.integration;
 
-import static com.jw.constants.OrderStatus.UNPROCESSED;
-
 import com.jw.constants.OrderProductStatus;
+import com.jw.constants.OrderStatus;
 import com.jw.dto.request.OrderProductRequest;
 import com.jw.dto.request.OrderRequest;
 import com.jw.entity.Order;
@@ -86,7 +85,7 @@ public class DatabaseQueryExecutor {
             try (PreparedStatement orderStatement = connection.prepareStatement(saveOrderQuery)) {
                 orderStatement.setLong(1, orderId);
                 orderStatement.setLong(2, orderRequest.customerId());
-                orderStatement.setString(3, UNPROCESSED);
+                orderStatement.setString(3, OrderStatus.UNPROCESSED.toString());
                 orderStatement.executeUpdate();
             }
             for (OrderProductRequest orderProductRequest : orderRequest.orderProducts()) {

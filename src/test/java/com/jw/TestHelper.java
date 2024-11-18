@@ -1,11 +1,11 @@
 package com.jw;
 
-import static com.jw.constants.OrderStatus.UNPROCESSED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.jw.constants.OrderProductStatus;
+import com.jw.constants.OrderStatus;
 import com.jw.dto.processed.ProductReservationResponse;
 import com.jw.dto.request.OrderProductRequest;
 import com.jw.dto.request.OrderRequest;
@@ -50,7 +50,7 @@ public class TestHelper {
         List<OrderProduct> orderProducts =
                 orderRequest.orderProducts().stream().map(TestHelper::createOrderProduct).toList();
         return Order.builder()
-                .status(UNPROCESSED)
+                .status(OrderStatus.UNPROCESSED.name())
                 .customerId(orderRequest.customerId())
                 .orderProducts(orderProducts)
                 .build();

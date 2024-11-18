@@ -35,7 +35,7 @@ public class FinalizeOrderService {
                         order.getOrderId(), request.products(), order.getOrderProducts());
         finalizedProductsQueue.forEach(queueWriter::saveProductOnFinalizedProducts);
         finalizedProductsQueue.forEach(p -> updateOrderProduct(p.product(), order));
-        order.setStatus(OrderStatus.FINALIZED);
+        order.setStatus(OrderStatus.FINALIZED.name());
         return new OrderFinalizeResponse(
                 request.orderId(),
                 request.customerId(),
@@ -83,7 +83,7 @@ public class FinalizeOrderService {
                         .findFirst()
                         .get();
         orderProduct1.setQuantity(p.finalized());
-        orderProduct1.setStatus(OrderStatus.FINALIZED);
+        orderProduct1.setStatus(OrderStatus.FINALIZED.name());
     }
 
     private List<OrderProductFinalizeResponse> toOrderProductFinalizeResponse(
