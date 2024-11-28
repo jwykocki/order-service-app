@@ -3,11 +3,12 @@ package com.jw;
 import static com.jw.resources.ProductComparisonEntity.from;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import com.jw.constants.OrderProductStatus;
+import com.jw.constants.OrderStatus;
 import com.jw.dto.finalize.request.OrderFinalizeResponse;
 import com.jw.dto.processed.ProductReservationResponse;
 import com.jw.dto.request.OrderProductRequest;
 import com.jw.dto.request.OrderRequest;
-import com.jw.dto.reservation.ReservationResult;
 import com.jw.dto.response.OrderResponse;
 import com.jw.entity.Order;
 import com.jw.entity.OrderProduct;
@@ -40,11 +41,8 @@ public class OrderTestFixtures {
         return new OrderRequest(TEST_CUSTOMER_ID_2, List.of(TEST_PRODUCT_1));
     }
 
-    public static final ReservationResult TEST_RESERVATION_RESULT =
-            new ReservationResult(0L, "SUCCESS", "test message");
-
     public static void assertProperOrder(
-            Order order, String orderStatus, List<ProductComparisonEntity> expectedProducts) {
+            Order order, OrderStatus orderStatus, List<ProductComparisonEntity> expectedProducts) {
         assertThat(order.getStatus()).isEqualTo(orderStatus);
         assertThat(order.getCustomerId()).isEqualTo(TEST_CUSTOMER_ID_1);
         assertThat(order.getOrderProducts().size()).isEqualTo(expectedProducts.size());
@@ -56,7 +54,7 @@ public class OrderTestFixtures {
 
     public static void assertProperOrderResponse(
             OrderResponse orderResponse,
-            String orderStatus,
+            OrderStatus orderStatus,
             List<ProductComparisonEntity> expectedProducts) {
         assertProperOrder(toOrder(orderResponse), orderStatus, expectedProducts);
     }
@@ -93,7 +91,7 @@ public class OrderTestFixtures {
     }
 
     public static List<ProductComparisonEntity> testProductsWithStatuses(
-            String status1, String status2) {
+            OrderProductStatus status1, OrderProductStatus status2) {
         return List.of(from(1L, 2, status1), from(2L, 4, status2));
     }
 

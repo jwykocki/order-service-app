@@ -21,26 +21,23 @@ Product Service App repository: https://github.com/jwykocki/product-service-app
 
 ## How to run it
 
-First of all, these repositories need to be downloaded:  
+### GitHub
+Repositories need to be downloaded:  
 `git clone git@github.com:jwykocki/order-service-app.git`  
 `git clone git@github.com:jwykocki/product-service-app.git`
 
-Next, in order-service-app run docker-compose.yml file using  
-`docker compose up` command. This will start order and product databases and creates tables for them.
-
-To start RabbitMQ queue, this command can be used:  
-`docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.13-management`
+### docker-compose
+In order-service-app run docker-compose.yml file using  
+`docker compose up` command. This will start order and product databases, create tables for them and run RabbitMQ container.
 
 To check if RabbitMQ was started correctly, visit http://localhost:15672/#/ and login with username `guest` and password `guest`.
 
-Next, create queues:  
+### Create queues
 `unprocessed-products`  
 `finalized-products`  
 `update-products`
 
-Create exchanges:  
-
-`unprocessed-orders` type: **topic**  
+### Create exchanges
 
 `unprocessed-products` type: **topic**  
 add binding -> `unprocessed-products` queue  
@@ -48,18 +45,17 @@ add binding -> `unprocessed-products` queue
 `finalized-products`type: **topic**  
 add binding -> `finalized-products` queue  
 
-
-After that, start Order and Product applications by running main class in your IDE of choice.  
+### Start applications
+Start Order and Product services by running main class in your IDE of choice.  
 order-service-app will automatically start on **8091** port.  
 product-service-app will automatically start on **8092** port.
 
-Further steps are described more in Workflow section.
-
+Further steps are described in more detail in Workflow section.
 
 ## Workflow
 
 ### Diagram
-![img.png](https://github.com/jwykocki/order-service-app/blob/main/architecture/Order%20flow.jpg)
+![img.png](/architecture/Order%20flow.jpg)
 
 ### Creating an order  
 HTTP method: `POST`  
@@ -225,7 +221,7 @@ Body: empty
 `Stock file read successfully`
 
 #### Diagram:
-![img.png](https://github.com/jwykocki/order-service-app/blob/main/architecture/Update%20stock.jpg)
+![img.png](/architecture/Update%20stock.jpg)
 
 ### Error handling
 In case of any error during order-service and product-service work, the error response is returned with proper HTTP status code.

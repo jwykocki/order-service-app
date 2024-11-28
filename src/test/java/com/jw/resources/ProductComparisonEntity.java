@@ -1,5 +1,6 @@
 package com.jw.resources;
 
+import com.jw.constants.OrderProductStatus;
 import com.jw.dto.processed.ProductReservationResponse;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,9 +12,10 @@ import lombok.ToString;
 public class ProductComparisonEntity {
     private Long productId;
     private int quantity;
-    private String status;
+    private OrderProductStatus status;
 
-    public static ProductComparisonEntity from(Long productId, int quantity, String status) {
+    public static ProductComparisonEntity from(
+            Long productId, int quantity, OrderProductStatus status) {
         ProductComparisonEntity entity = new ProductComparisonEntity();
         entity.productId = productId;
         entity.quantity = quantity;
