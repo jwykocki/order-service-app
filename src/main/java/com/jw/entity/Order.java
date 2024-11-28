@@ -1,5 +1,6 @@
 package com.jw.entity;
 
+import com.jw.constants.OrderStatus;
 import jakarta.persistence.*;
 import java.util.List;
 import lombok.*;
@@ -22,7 +23,8 @@ public class Order {
 
     private Long customerId;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "orderid")

@@ -52,8 +52,8 @@ public class QueueReader {
                 "Received reservation result from processed-products queue (id = {})",
                 reservationResult.orderId());
         productService.updateOrderProductStatus(reservationResult);
-        String status = orderService.updateOrderStatusAndReturn(reservationResult.orderId());
-        if (OrderStatus.ALL_AVAILABLE.name().equals(status)) {
+        OrderStatus status = orderService.updateOrderStatusAndReturn(reservationResult.orderId());
+        if (OrderStatus.ALL_AVAILABLE.equals(status)) {
             log.debug(
                     "All products are available, finalizing order (id = {})",
                     reservationResult.orderId());

@@ -50,7 +50,7 @@ public class TestHelper {
         List<OrderProduct> orderProducts =
                 orderRequest.orderProducts().stream().map(TestHelper::createOrderProduct).toList();
         return Order.builder()
-                .status(OrderStatus.UNPROCESSED.name())
+                .status(OrderStatus.UNPROCESSED)
                 .customerId(orderRequest.customerId())
                 .orderProducts(orderProducts)
                 .build();
@@ -77,7 +77,7 @@ public class TestHelper {
 
     private static OrderProduct createOrderProduct(OrderProductRequest orderProductRequest) {
         return OrderProduct.builder()
-                .status(OrderProductStatus.RESERVED.name())
+                .status(OrderProductStatus.RESERVED)
                 .productId(orderProductRequest.productId())
                 .quantity(orderProductRequest.quantity())
                 .build();

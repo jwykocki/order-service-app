@@ -3,6 +3,7 @@ package com.jw.service;
 import static com.jw.constants.OrderProductStatus.RESERVED;
 import static com.jw.exception.ExceptionMessages.*;
 
+import com.jw.constants.OrderProductStatus;
 import com.jw.constants.OrderStatus;
 import com.jw.dto.finalize.request.*;
 import com.jw.entity.Order;
@@ -37,7 +38,7 @@ public class FinalizeOrderService {
                         order.getOrderId(), request.products(), order.getOrderProducts());
         finalizedProductsQueue.forEach(queueWriter::saveProductOnFinalizedProducts);
         finalizedProductsQueue.forEach(p -> updateOrderProduct(p.product(), order));
-        order.setStatus(OrderStatus.FINALIZED.name());
+        order.setStatus(OrderStatus.FINALIZED);
         return new OrderFinalizeResponse(
                 request.orderId(),
                 request.customerId(),
@@ -72,7 +73,7 @@ public class FinalizeOrderService {
     }
 
     private void checkIfOrderWasNotFinalizedBefore(Order order) {
-        if (OrderStatus.FINALIZED.name().equals(order.getStatus())) {
+        if (OrderStatus.FINALIZED.equals(order.getStatus())) {
             throw new BadOrderRequestException(
                     ORDER_ALREADY_FINALIZED_MESSAGE.formatted(order.getOrderId()));
         }
@@ -85,7 +86,7 @@ public class FinalizeOrderService {
                         .findFirst()
                         .get();
         orderProduct1.setQuantity(p.finalized());
-        orderProduct1.setStatus(OrderStatus.FINALIZED.name());
+        orderProduct1.setStatus(OrderProductStatus.FINALIZED);
     }
 
     private List<OrderProductFinalizeResponse> toOrderProductFinalizeResponse(
@@ -121,7 +122,7 @@ public class FinalizeOrderService {
             List<OrderProduct> products, Long productId) {
         return products.stream()
                 .filter(p -> p.getProductId().equals(productId))
-                .filter(p -> RESERVED.name().equals(p.getStatus()))
+                .filter(p -> RESERVED.equals(p.getStatus()))
                 .findFirst()
                 .orElseThrow(
                         () ->

@@ -56,19 +56,19 @@ public class OrderService {
     }
 
     @Transactional
-    public String updateOrderStatusAndReturn(Long orderId) {
+    public OrderStatus updateOrderStatusAndReturn(Long orderId) {
         Order order = getOrderOrElseThrowException(orderId);
         if (allRequestedProductsAreProcessed(order)) {
             if (allRequestedProductsReserved(order)) {
-                order.setStatus(OrderStatus.ALL_AVAILABLE.name());
-                return OrderStatus.ALL_AVAILABLE.name();
+                order.setStatus(OrderStatus.ALL_AVAILABLE);
+                return OrderStatus.ALL_AVAILABLE;
             } else {
-                order.setStatus(OrderStatus.PARTIALLY_AVAILABLE.name());
-                return OrderStatus.PARTIALLY_AVAILABLE.name();
+                order.setStatus(OrderStatus.PARTIALLY_AVAILABLE);
+                return OrderStatus.PARTIALLY_AVAILABLE;
             }
         }
-        order.setStatus(OrderStatus.UNPROCESSED.name());
-        return OrderStatus.UNPROCESSED.name();
+        order.setStatus(OrderStatus.UNPROCESSED);
+        return OrderStatus.UNPROCESSED;
     }
 
     @Transactional
@@ -80,7 +80,7 @@ public class OrderService {
 
     private boolean allRequestedProductsAreProcessed(Order order) {
         return order.getOrderProducts().stream()
-                .filter(orderProduct -> UNKNOWN.name().equals(orderProduct.getStatus()))
+                .filter(orderProduct -> UNKNOWN.equals(orderProduct.getStatus()))
                 .toList()
                 .isEmpty();
     }
@@ -88,15 +88,15 @@ public class OrderService {
     private boolean allRequestedProductsReserved(Order order) {
         List<OrderProduct> reserved =
                 order.getOrderProducts().stream()
-                        .filter(orderProduct -> RESERVED.name().equals(orderProduct.getStatus()))
+                        .filter(orderProduct -> RESERVED.equals(orderProduct.getStatus()))
                         .toList();
         return reserved.size() == order.getOrderProducts().size();
     }
 
     private Order createOrderInDatabase(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
-        order.getOrderProducts().forEach(p -> p.setStatus(UNKNOWN.name()));
-        order.setStatus(OrderStatus.UNPROCESSED.name());
+        order.getOrderProducts().forEach(p -> p.setStatus(UNKNOWN));
+        order.setStatus(OrderStatus.UNPROCESSED);
         orderRepository.persist(order);
         return order;
     }

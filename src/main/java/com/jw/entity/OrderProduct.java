@@ -1,5 +1,6 @@
 package com.jw.entity;
 
+import com.jw.constants.OrderProductStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -27,5 +28,7 @@ public class OrderProduct {
 
     private Long productId;
     private int quantity;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private OrderProductStatus status;
 }

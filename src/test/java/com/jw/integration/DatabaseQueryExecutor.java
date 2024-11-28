@@ -49,7 +49,9 @@ public class DatabaseQueryExecutor {
                                         newOrder.setOrderId(id);
                                         try {
                                             newOrder.setCustomerId(resultSet.getLong("customerid"));
-                                            newOrder.setStatus(resultSet.getString("order_status"));
+                                            newOrder.setStatus(
+                                                    OrderStatus.valueOf(
+                                                            resultSet.getString("order_status")));
                                         } catch (SQLException e) {
                                             throw new RuntimeException(e);
                                         }
@@ -60,7 +62,8 @@ public class DatabaseQueryExecutor {
                     OrderProduct orderProduct = new OrderProduct();
                     orderProduct.setProductId(resultSet.getLong("productid"));
                     orderProduct.setQuantity(resultSet.getInt("quantity"));
-                    orderProduct.setStatus(resultSet.getString("product_status"));
+                    orderProduct.setStatus(
+                            OrderProductStatus.valueOf(resultSet.getString("product_status")));
                     orderProduct.setOrder(order);
 
                     order.getOrderProducts().add(orderProduct);
@@ -96,7 +99,7 @@ public class DatabaseQueryExecutor {
                     orderStatement.setLong(2, orderId);
                     orderStatement.setLong(3, orderProductRequest.productId());
                     orderStatement.setInt(4, orderProductRequest.quantity());
-                    orderStatement.setString(5, OrderProductStatus.UNKNOWN.name());
+                    orderStatement.setString(5, String.valueOf(OrderProductStatus.UNKNOWN));
                     orderStatement.executeUpdate();
                 }
             }
