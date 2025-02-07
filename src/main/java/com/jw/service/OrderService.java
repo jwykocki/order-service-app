@@ -1,7 +1,7 @@
 package com.jw.service;
 
 import static com.jw.constants.OrderProductStatus.*;
-import static com.jw.exception.ExceptionMessages.ORDER_NOT_FOUND_MESSAGE;
+import static com.jw.exception.ExceptionMessages.*;
 
 import com.jw.constants.OrderStatus;
 import com.jw.dto.finalize.request.OrderFinalizeResponse;
