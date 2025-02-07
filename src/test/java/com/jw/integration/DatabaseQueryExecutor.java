@@ -125,17 +125,35 @@ public class DatabaseQueryExecutor {
                 }
             }
 
-            try (PreparedStatement orderStatement = connection.prepareStatement(deleteOrderQuery)) {
-                orderStatement.setLong(1, customerId);
-                orderStatement.executeUpdate();
-            }
-
             for (Long id : orderIds) {
                 try (PreparedStatement orderStatement =
                         connection.prepareStatement(deleteOrderProductQuery)) {
                     orderStatement.setLong(1, id);
                     orderStatement.executeUpdate();
                 }
+            }
+
+            try (PreparedStatement orderStatement = connection.prepareStatement(deleteOrderQuery)) {
+                orderStatement.setLong(1, customerId);
+                orderStatement.executeUpdate();
+            }
+        }
+    }
+
+    @SneakyThrows
+    @Transactional
+    public void deleteAllOrders() {
+        String deleteOrderQuery = "DELETE FROM order_table";
+        String deleteOrderProductQuery = "DELETE FROM order_product_table";
+        try (Connection connection = dataSource.getConnection()) {
+
+            try (PreparedStatement productStatement =
+                    connection.prepareStatement(deleteOrderProductQuery)) {
+                productStatement.executeUpdate();
+            }
+
+            try (PreparedStatement orderStatement = connection.prepareStatement(deleteOrderQuery)) {
+                orderStatement.executeUpdate();
             }
         }
     }

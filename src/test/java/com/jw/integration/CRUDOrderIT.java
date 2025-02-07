@@ -33,14 +33,9 @@ import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 public class CRUDOrderIT {
 
     private final OrderRepository orderRepository;
+    private final DatabaseQueryExecutor dbExecutor;
 
     @InjectMock QueueWriter queueWriter;
-
-    @Transactional
-    public void deleteRows() {
-        orderRepository.deleteAll();
-        assertThat(orderRepository.listAll()).isEmpty();
-    }
 
     @Transactional
     public void saveOrder(Order order) {
@@ -49,8 +44,9 @@ public class CRUDOrderIT {
 
     @BeforeEach
     @AfterEach
-    public void cleanUp() {
-        deleteRows();
+    public void deleteRows() {
+        dbExecutor.deleteAllOrders();
+        assertThat(orderRepository.listAll()).isEmpty();
     }
 
     @Test
@@ -170,5 +166,11 @@ public class CRUDOrderIT {
 
         // then
         assertThat(orderRepository.listAll()).isEmpty();
+    }
+
+    @Test
+    public void hibernateNPlusOneProblemTest() {
+        orderRepository.listAll()
+                .forEach(order -> System.out.println(order.getOrderProducts()));
     }
 }

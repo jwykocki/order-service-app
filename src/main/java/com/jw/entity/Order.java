@@ -4,8 +4,6 @@ import com.jw.constants.OrderStatus;
 import jakarta.persistence.*;
 import java.util.List;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "order_table")
@@ -28,6 +26,5 @@ public class Order {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "orderid")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<OrderProduct> orderProducts;
 }

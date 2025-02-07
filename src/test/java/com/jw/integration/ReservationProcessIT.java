@@ -166,7 +166,6 @@ public class ReservationProcessIT {
                                     .map(s -> orderProductMapper.toProductReservationResult(s))
                                     .forEach(p -> assertThat(p.status()).isEqualTo(RESERVED));
                         });
-
         verify(orderService, times(2)).updateOrderStatusAndReturn(TEST_ORDER_ID);
 
         Awaitility.await()
