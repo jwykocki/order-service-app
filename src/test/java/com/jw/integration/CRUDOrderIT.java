@@ -170,7 +170,6 @@ public class CRUDOrderIT {
 
     @Test
     public void hibernateNPlusOneProblemTest() {
-        orderRepository.listAll()
-                .forEach(order -> System.out.println(order.getOrderProducts()));
+        orderRepository.listAll().forEach(order -> System.out.println(order.getOrderProducts()));
     }
 }
