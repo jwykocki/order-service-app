@@ -1,8 +1,7 @@
 package com.jw.integration;
 
-import static com.jw.constants.OrderStatus.UNPROCESSED;
-
 import com.jw.constants.OrderProductStatus;
+import com.jw.constants.OrderStatus;
 import com.jw.dto.request.OrderProductRequest;
 import com.jw.dto.request.OrderRequest;
 import com.jw.entity.Order;
@@ -50,7 +49,9 @@ public class DatabaseQueryExecutor {
                                         newOrder.setOrderId(id);
                                         try {
                                             newOrder.setCustomerId(resultSet.getLong("customerid"));
-                                            newOrder.setStatus(resultSet.getString("order_status"));
+                                            newOrder.setStatus(
+                                                    OrderStatus.valueOf(
+                                                            resultSet.getString("order_status")));
                                         } catch (SQLException e) {
                                             throw new RuntimeException(e);
                                         }
@@ -61,7 +62,8 @@ public class DatabaseQueryExecutor {
                     OrderProduct orderProduct = new OrderProduct();
                     orderProduct.setProductId(resultSet.getLong("productid"));
                     orderProduct.setQuantity(resultSet.getInt("quantity"));
-                    orderProduct.setStatus(resultSet.getString("product_status"));
+                    orderProduct.setStatus(
+                            OrderProductStatus.valueOf(resultSet.getString("product_status")));
                     orderProduct.setOrder(order);
 
                     order.getOrderProducts().add(orderProduct);
@@ -86,7 +88,7 @@ public class DatabaseQueryExecutor {
             try (PreparedStatement orderStatement = connection.prepareStatement(saveOrderQuery)) {
                 orderStatement.setLong(1, orderId);
                 orderStatement.setLong(2, orderRequest.customerId());
-                orderStatement.setString(3, UNPROCESSED);
+                orderStatement.setString(3, OrderStatus.UNPROCESSED.toString());
                 orderStatement.executeUpdate();
             }
             for (OrderProductRequest orderProductRequest : orderRequest.orderProducts()) {
@@ -97,7 +99,7 @@ public class DatabaseQueryExecutor {
                     orderStatement.setLong(2, orderId);
                     orderStatement.setLong(3, orderProductRequest.productId());
                     orderStatement.setInt(4, orderProductRequest.quantity());
-                    orderStatement.setString(5, OrderProductStatus.UNKNOWN);
+                    orderStatement.setString(5, String.valueOf(OrderProductStatus.UNKNOWN));
                     orderStatement.executeUpdate();
                 }
             }
@@ -123,17 +125,35 @@ public class DatabaseQueryExecutor {
                 }
             }
 
-            try (PreparedStatement orderStatement = connection.prepareStatement(deleteOrderQuery)) {
-                orderStatement.setLong(1, customerId);
-                orderStatement.executeUpdate();
-            }
-
             for (Long id : orderIds) {
                 try (PreparedStatement orderStatement =
                         connection.prepareStatement(deleteOrderProductQuery)) {
                     orderStatement.setLong(1, id);
                     orderStatement.executeUpdate();
                 }
+            }
+
+            try (PreparedStatement orderStatement = connection.prepareStatement(deleteOrderQuery)) {
+                orderStatement.setLong(1, customerId);
+                orderStatement.executeUpdate();
+            }
+        }
+    }
+
+    @SneakyThrows
+    @Transactional
+    public void deleteAllOrders() {
+        String deleteOrderQuery = "DELETE FROM order_table";
+        String deleteOrderProductQuery = "DELETE FROM order_product_table";
+        try (Connection connection = dataSource.getConnection()) {
+
+            try (PreparedStatement productStatement =
+                    connection.prepareStatement(deleteOrderProductQuery)) {
+                productStatement.executeUpdate();
+            }
+
+            try (PreparedStatement orderStatement = connection.prepareStatement(deleteOrderQuery)) {
+                orderStatement.executeUpdate();
             }
         }
     }

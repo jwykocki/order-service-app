@@ -1,7 +1,10 @@
 package com.jw.service;
 
+import static com.jw.exception.ExceptionMessages.*;
+
 import com.jw.dto.processed.ProductReservationResult;
-import com.jw.entity.OrderProduct;
+import com.jw.exception.OrderNotFoundException;
+import com.jw.repository.ProductRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +18,14 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public void updateOrderProductStatus(ProductReservationResult productReservationResult) {
+    public void updateOrderProductStatus(ProductReservationResult result) {
         // TODO null handling
-        OrderProduct product =
-                productRepository.getByOrderIdAndProductIdAndQuantity(
-                        productReservationResult.orderId(),
-                        productReservationResult.product().productId(),
-                        productReservationResult.product().quantity().longValue());
-        product.setStatus(productReservationResult.status());
+        productRepository
+                .getByOrderIdAndProductId(result.orderId(), result.product().productId())
+                .orElseThrow(
+                        () ->
+                                new OrderNotFoundException(
+                                        ORDER_NOT_FOUND_MESSAGE.formatted(result.orderId())))
+                .setStatus(result.status());
     }
 }

@@ -1,14 +1,17 @@
 package com.jw.service;
 
 import static com.jw.constants.OrderProductStatus.*;
-import static com.jw.constants.OrderStatus.*;
+import static com.jw.exception.ExceptionMessages.*;
 
+import com.jw.constants.OrderStatus;
 import com.jw.dto.finalize.request.OrderFinalizeResponse;
 import com.jw.dto.request.OrderRequest;
 import com.jw.dto.response.OrderResponse;
 import com.jw.entity.Order;
 import com.jw.entity.OrderProduct;
-import com.jw.error.OrderNotFoundException;
+import com.jw.exception.OrderNotFoundException;
+import com.jw.mapper.OrderMapper;
+import com.jw.repository.OrderRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -53,24 +56,31 @@ public class OrderService {
     }
 
     @Transactional
-    public String updateOrderStatusAndReturn(Long orderId) {
+    public OrderStatus updateOrderStatusAndReturn(Long orderId) {
         Order order = getOrderOrElseThrowException(orderId);
         if (allRequestedProductsAreProcessed(order)) {
             if (allRequestedProductsReserved(order)) {
-                order.setStatus(ALL_AVAILABLE);
-                return ALL_AVAILABLE;
+                order.setStatus(OrderStatus.ALL_AVAILABLE);
+                return OrderStatus.ALL_AVAILABLE;
             } else {
-                order.setStatus(PARTIALLY_AVAILABLE);
-                return PARTIALLY_AVAILABLE;
+                order.setStatus(OrderStatus.PARTIALLY_AVAILABLE);
+                return OrderStatus.PARTIALLY_AVAILABLE;
             }
         }
-        order.setStatus(UNPROCESSED);
-        return UNPROCESSED;
+        order.setStatus(OrderStatus.UNPROCESSED);
+        return OrderStatus.UNPROCESSED;
+    }
+
+    @Transactional
+    public OrderResponse processUpdateOrder(Long orderId, OrderRequest orderRequest) {
+        Order order = getOrderOrElseThrowException(orderId);
+        orderMapper.update(order, orderRequest);
+        return orderMapper.toOrderResponse(order);
     }
 
     private boolean allRequestedProductsAreProcessed(Order order) {
         return order.getOrderProducts().stream()
-                .filter(orderProduct -> orderProduct.getStatus().equals(UNKNOWN))
+                .filter(orderProduct -> UNKNOWN.equals(orderProduct.getStatus()))
                 .toList()
                 .isEmpty();
     }
@@ -78,50 +88,23 @@ public class OrderService {
     private boolean allRequestedProductsReserved(Order order) {
         List<OrderProduct> reserved =
                 order.getOrderProducts().stream()
-                        .filter(orderProduct -> orderProduct.getStatus().equals(RESERVED))
+                        .filter(orderProduct -> RESERVED.equals(orderProduct.getStatus()))
                         .toList();
         return reserved.size() == order.getOrderProducts().size();
-    }
-
-    @Transactional
-    public OrderResponse processUpdateOrder(Long orderId, OrderRequest orderRequest) {
-        checkIfOrderExistsOrElseThrowException(orderId);
-        Order order = orderMapper.toOrder(orderRequest);
-        order.setOrderId(orderId);
-        String status = orderRepository.findById(orderId).getStatus();
-        order.setStatus(status);
-        Order updatedOrder = updateOrder(order);
-        return orderMapper.toOrderResponse(updatedOrder);
-    }
-
-    private Order updateOrder(Order order) {
-        orderRepository.getEntityManager().merge(order);
-        return order;
     }
 
     private Order createOrderInDatabase(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
         order.getOrderProducts().forEach(p -> p.setStatus(UNKNOWN));
-        order.setStatus(UNPROCESSED);
+        order.setStatus(OrderStatus.UNPROCESSED);
         orderRepository.persist(order);
         return order;
-    }
-
-    private void checkIfOrderExistsOrElseThrowException(Long id) {
-        orderRepository
-                .findByIdOptional(id)
-                .orElseThrow(
-                        () ->
-                                new OrderNotFoundException(
-                                        "Order with id = %s was not found".formatted(id)));
     }
 
     private Order getOrderOrElseThrowException(Long id) {
         return orderRepository
                 .findByIdOptional(id)
                 .orElseThrow(
-                        () ->
-                                new OrderNotFoundException(
-                                        "Order with id = %s was not found".formatted(id)));
+                        () -> new OrderNotFoundException(ORDER_NOT_FOUND_MESSAGE.formatted(id)));
     }
 }

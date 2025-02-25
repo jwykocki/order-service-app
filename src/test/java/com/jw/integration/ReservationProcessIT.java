@@ -4,12 +4,15 @@ import static com.jw.OrderTestFixtures.*;
 import static com.jw.TestHelper.asString;
 import static com.jw.constants.OrderProductStatus.*;
 import static com.jw.constants.OrderStatus.*;
+import static com.jw.constants.OrderStatus.FINALIZED;
 import static com.jw.resources.RequestCaller.callEndpointAndAssertStatusCodeAndReturn;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.jw.constants.OrderProductStatus;
+import com.jw.constants.OrderStatus;
 import com.jw.dto.finalize.request.FinalizedOrderQueue;
 import com.jw.dto.finalize.request.OrderFinalizeRequest;
 import com.jw.dto.finalize.request.OrderFinalizeResponse;
@@ -22,6 +25,7 @@ import com.jw.dto.unprocessed.orders.OrderProductQueue;
 import com.jw.dto.unprocessed.orders.UnprocessedOrderQueue;
 import com.jw.dto.unprocessed.products.UnprocessedProductQueue;
 import com.jw.entity.Order;
+import com.jw.mapper.OrderProductMapper;
 import com.jw.service.*;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -100,10 +104,11 @@ public class ReservationProcessIT {
         Long orderId = orderResponse.orderId();
         assertThat(orderId).isNotNull();
         assertProperOrderResponse(
-                orderResponse, UNPROCESSED, testProductsWithStatuses(UNKNOWN, UNKNOWN));
+                orderResponse, OrderStatus.UNPROCESSED, testProductsWithStatuses(UNKNOWN, UNKNOWN));
 
         Order order = assertOneOrderInDatabaseAndReturn(TEST_CUSTOMER_ID_1);
-        assertProperOrder(order, UNPROCESSED, testProductsWithStatuses(UNKNOWN, UNKNOWN));
+        assertProperOrder(
+                order, OrderStatus.UNPROCESSED, testProductsWithStatuses(UNKNOWN, UNKNOWN));
 
         verify(queueWriter, times(1))
                 .saveOrderOnUnprocessedOrders(any(UnprocessedOrderQueue.class));
@@ -161,7 +166,6 @@ public class ReservationProcessIT {
                                     .map(s -> orderProductMapper.toProductReservationResult(s))
                                     .forEach(p -> assertThat(p.status()).isEqualTo(RESERVED));
                         });
-
         verify(orderService, times(2)).updateOrderStatusAndReturn(TEST_ORDER_ID);
 
         Awaitility.await()
@@ -178,7 +182,11 @@ public class ReservationProcessIT {
                         });
 
         Order order = assertOneOrderInDatabaseAndReturn(TEST_CUSTOMER_ID_1);
-        assertProperOrder(order, FINALIZED, testProductsWithStatuses(FINALIZED, FINALIZED));
+        assertProperOrder(
+                order,
+                FINALIZED,
+                testProductsWithStatuses(
+                        OrderProductStatus.FINALIZED, OrderProductStatus.FINALIZED));
     }
 
     @Test
@@ -212,7 +220,9 @@ public class ReservationProcessIT {
 
         Order order = assertOneOrderInDatabaseAndReturn(TEST_CUSTOMER_ID_1);
         assertProperOrder(
-                order, PARTIALLY_AVAILABLE, testProductsWithStatuses(RESERVED, NOT_AVAILABLE));
+                order,
+                OrderStatus.PARTIALLY_AVAILABLE,
+                testProductsWithStatuses(RESERVED, NOT_AVAILABLE));
 
         OrderFinalizeRequest orderFinalizeRequest =
                 new OrderFinalizeRequest(
@@ -242,7 +252,11 @@ public class ReservationProcessIT {
                         });
 
         Order order2 = assertOneOrderInDatabaseAndReturn(TEST_CUSTOMER_ID_1);
-        assertProperOrder(order2, FINALIZED, testProductsWithStatuses(FINALIZED, NOT_AVAILABLE));
+        assertProperOrder(
+                order2,
+                FINALIZED,
+                testProductsWithStatuses(
+                        OrderProductStatus.FINALIZED, OrderProductStatus.NOT_AVAILABLE));
     }
 
     private void assertNoRowsWithCustomerId(Long customerId) {
@@ -268,6 +282,7 @@ public class ReservationProcessIT {
 
     private void assertOneProperOrderInDatabase(Long customerId) {
         Order order = assertOneOrderInDatabaseAndReturn(customerId);
-        assertProperOrder(order, UNPROCESSED, testProductsWithStatuses(UNKNOWN, UNKNOWN));
+        assertProperOrder(
+                order, OrderStatus.UNPROCESSED, testProductsWithStatuses(UNKNOWN, UNKNOWN));
     }
 }

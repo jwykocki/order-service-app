@@ -1,3 +1,6 @@
 package com.jw.dto.processed;
 
-public record ProductReservationResponse(Long productId, Integer quantity, String status) {}
+import com.jw.constants.OrderProductStatus;
+
+public record ProductReservationResponse(
+        Long productId, Integer quantity, OrderProductStatus status) {}

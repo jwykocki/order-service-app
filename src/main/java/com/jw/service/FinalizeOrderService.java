@@ -1,15 +1,17 @@
 package com.jw.service;
 
 import static com.jw.constants.OrderProductStatus.RESERVED;
+import static com.jw.exception.ExceptionMessages.*;
 
+import com.jw.constants.OrderProductStatus;
 import com.jw.constants.OrderStatus;
 import com.jw.dto.finalize.request.*;
 import com.jw.entity.Order;
 import com.jw.entity.OrderProduct;
-import com.jw.error.NotEnoughReservedAmountException;
-import com.jw.error.OrderAlreadyFinalizedException;
-import com.jw.error.OrderNotFoundException;
-import com.jw.error.ProductNotReservedException;
+import com.jw.exception.BadOrderRequestException;
+import com.jw.exception.OrderNotFoundException;
+import com.jw.mapper.OrderMapper;
+import com.jw.repository.OrderRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
@@ -71,8 +73,9 @@ public class FinalizeOrderService {
     }
 
     private void checkIfOrderWasNotFinalizedBefore(Order order) {
-        if (order.getStatus().equals(OrderStatus.FINALIZED)) {
-            throw new OrderAlreadyFinalizedException("Order was already finalized");
+        if (OrderStatus.FINALIZED.equals(order.getStatus())) {
+            throw new BadOrderRequestException(
+                    ORDER_ALREADY_FINALIZED_MESSAGE.formatted(order.getOrderId()));
         }
     }
 
@@ -83,7 +86,7 @@ public class FinalizeOrderService {
                         .findFirst()
                         .get();
         orderProduct1.setQuantity(p.finalized());
-        orderProduct1.setStatus(OrderStatus.FINALIZED);
+        orderProduct1.setStatus(OrderProductStatus.FINALIZED);
     }
 
     private List<OrderProductFinalizeResponse> toOrderProductFinalizeResponse(
@@ -98,7 +101,6 @@ public class FinalizeOrderService {
             List<OrderProductFinalizeRequest> toFinalizeProducts,
             List<OrderProduct> reservedProducts) {
         List<FinalizedOrderQueue> finalizedOrdersQueue = new ArrayList<>();
-        System.out.println(toFinalizeProducts);
         toFinalizeProducts.forEach(
                 toFinalizeProduct -> {
                     OrderProduct reservedProduct =
@@ -120,20 +122,19 @@ public class FinalizeOrderService {
             List<OrderProduct> products, Long productId) {
         return products.stream()
                 .filter(p -> p.getProductId().equals(productId))
-                .filter(p -> p.getStatus().equals(RESERVED))
+                .filter(p -> RESERVED.equals(p.getStatus()))
                 .findFirst()
                 .orElseThrow(
                         () ->
-                                new ProductNotReservedException(
-                                        "Product with id %s not reserved".formatted(productId)));
+                                new BadOrderRequestException(
+                                        PRODUCT_NOT_RESERVED_MESSAGE.formatted(productId)));
     }
 
     private void checkIfProductAmountIsCorrect(
             OrderProductFinalizeRequest toFinalizeProduct, OrderProduct reservedProduct) {
         if (toFinalizeProduct.toFinalize() > reservedProduct.getQuantity()) {
-            throw new NotEnoughReservedAmountException(
-                    "Not enough reserved for product id %s"
-                            .formatted(reservedProduct.getProductId()));
+            throw new BadOrderRequestException(
+                    PRODUCT_NOT_ENOUGH_RESERVED_MESSAGE.formatted(reservedProduct.getProductId()));
         }
     }
 
@@ -141,8 +142,6 @@ public class FinalizeOrderService {
         return orderRepository
                 .findByIdOptional(id)
                 .orElseThrow(
-                        () ->
-                                new OrderNotFoundException(
-                                        "Order with id = %s was not found".formatted(id)));
+                        () -> new OrderNotFoundException(ORDER_NOT_FOUND_MESSAGE.formatted(id)));
     }
 }

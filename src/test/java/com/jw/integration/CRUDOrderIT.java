@@ -10,13 +10,13 @@ import static org.mockito.Mockito.*;
 
 import com.jw.dto.request.OrderRequest;
 import com.jw.dto.response.OrderResponse;
-import com.jw.dto.response.OrdersResponse;
 import com.jw.entity.Order;
-import com.jw.service.OrderRepository;
+import com.jw.repository.OrderRepository;
 import com.jw.service.QueueWriter;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.common.mapper.TypeRef;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.HttpMethod;
 import java.util.List;
@@ -33,14 +33,9 @@ import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 public class CRUDOrderIT {
 
     private final OrderRepository orderRepository;
+    private final DatabaseQueryExecutor dbExecutor;
 
     @InjectMock QueueWriter queueWriter;
-
-    @Transactional
-    public void deleteRows() {
-        orderRepository.deleteAll();
-        assertThat(orderRepository.listAll()).isEmpty();
-    }
 
     @Transactional
     public void saveOrder(Order order) {
@@ -49,8 +44,9 @@ public class CRUDOrderIT {
 
     @BeforeEach
     @AfterEach
-    public void cleanUp() {
-        deleteRows();
+    public void deleteRows() {
+        dbExecutor.deleteAllOrders();
+        assertThat(orderRepository.listAll()).isEmpty();
     }
 
     @Test
@@ -89,13 +85,12 @@ public class CRUDOrderIT {
         assertThat(orderRepository.listAll()).hasSize(2);
 
         // when
-        OrdersResponse ordersResponse =
+        List<OrderResponse> orders =
                 callEndpointAndAssertStatusCodeAndReturn(
                                 HttpMethod.GET, ORDER_ENDPOINT, StringUtils.EMPTY, HttpStatus.SC_OK)
-                        .as(OrdersResponse.class);
+                        .as(new TypeRef<>() {});
 
         // then
-        List<OrderResponse> orders = ordersResponse.getOrders();
         assertThat(orders).hasSize(2);
         assertCorrectOrdersResponse(List.of(order1, order2), orders);
     }
@@ -171,5 +166,10 @@ public class CRUDOrderIT {
 
         // then
         assertThat(orderRepository.listAll()).isEmpty();
+    }
+
+    @Test
+    public void hibernateNPlusOneProblemTest() {
+        orderRepository.listAll().forEach(order -> System.out.println(order.getOrderProducts()));
     }
 }

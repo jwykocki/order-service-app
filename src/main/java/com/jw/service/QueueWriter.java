@@ -26,17 +26,17 @@ public class QueueWriter {
     Emitter<FinalizedOrderQueue> finalizedProductsEmitter;
 
     public void saveOrderOnUnprocessedOrders(UnprocessedOrderQueue order) {
-        log.info("Saving order on unprocessed-orders queue (id = {})", order.orderId());
+        log.debug("Saving order on unprocessed-orders queue (id = {})", order.orderId());
         unprocessedOrdersEmitter.send(order);
     }
 
     public void saveProductOnUnprocessedProducts(UnprocessedProductQueue product) {
-        log.info("Saving product on unprocessed-products (id = {})", product.orderId());
+        log.debug("Saving product on unprocessed-products (id = {})", product.orderId());
         unprocessedProductsEmitter.send(product);
     }
 
     public void saveProductOnFinalizedProducts(FinalizedOrderQueue product) {
-        log.info("Saving product on finalized-products (id = {})", product.orderId());
+        log.debug("Saving product on finalized-products (id = {})", product.orderId());
         finalizedProductsEmitter.send(product);
     }
 }
